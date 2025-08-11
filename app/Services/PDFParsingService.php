@@ -6,18 +6,17 @@ use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Spatie\PdfToText\Pdf;
 
 class PDFParsingService
 {
     /**
-     * Extract text content from a PDF file
+     * Validate and prepare PDF file for processing
      *
      * @param UploadedFile $file
      * @return array
      * @throws Exception
      */
-    public function extractText(UploadedFile $file): array
+    public function validatePDF(UploadedFile $file): array
     {
         try {
             // Validate file type
@@ -25,24 +24,13 @@ class PDFParsingService
                 throw new Exception('File must be a PDF');
             }
 
-            // Store the file temporarily
-            $tempPath = $file->storeAs('temp', uniqid() . '.pdf', 'local');
-            $fullPath = Storage::disk('local')->path($tempPath);
-
-            // Extract text from PDF
-            $extractedText = Pdf::getText($fullPath);
-            
-            // Clean up the temporary file
-            Storage::disk('local')->delete($tempPath);
-
-            // Process and clean the extracted text
-            $cleanedText = $this->cleanText($extractedText);
+            // Validate file size (max 10MB)
+            if ($file->getSize() > 10 * 1024 * 1024) {
+                throw new Exception('PDF file is too large. Maximum size is 10MB.');
+            }
 
             return [
                 'success' => true,
-                'text' => $cleanedText,
-                'word_count' => str_word_count($cleanedText),
-                'character_count' => strlen($cleanedText),
                 'metadata' => [
                     'filename' => $file->getClientOriginalName(),
                     'file_size' => $file->getSize(),
@@ -51,7 +39,7 @@ class PDFParsingService
             ];
 
         } catch (Exception $e) {
-            Log::error('PDF parsing failed', [
+            Log::error('PDF validation failed', [
                 'filename' => $file->getClientOriginalName() ?? 'unknown',
                 'error' => $e->getMessage()
             ]);
@@ -65,6 +53,18 @@ class PDFParsingService
                 ]
             ];
         }
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     *
+     * @param UploadedFile $file
+     * @return array
+     * @throws Exception
+     */
+    public function extractText(UploadedFile $file): array
+    {
+        return $this->validatePDF($file);
     }
 
     /**

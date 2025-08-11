@@ -29,56 +29,46 @@ class ReportGenerationService
     public function generateDailyReport(UploadedFile $pdfFile, string $additionalNotes = ''): array
     {
         try {
-            // Step 1: Extract text from PDF
-            Log::info('Starting PDF text extraction', [
+            // Step 1: Validate PDF file
+            Log::info('Starting PDF validation', [
                 'filename' => $pdfFile->getClientOriginalName()
             ]);
 
-            $extractionResult = $this->pdfService->extractText($pdfFile);
+            $validationResult = $this->pdfService->validatePDF($pdfFile);
             
-            if (!$extractionResult['success']) {
+            if (!$validationResult['success']) {
                 return [
                     'success' => false,
-                    'error' => 'Failed to extract text from PDF: ' . $extractionResult['error'],
-                    'stage' => 'pdf_extraction'
+                    'error' => 'PDF validation failed: ' . $validationResult['error'],
+                    'stage' => 'pdf_validation'
                 ];
             }
-
-            $extractedText = $extractionResult['text'];
             
-            // Step 2: Validate content
-            $validation = $this->pdfService->validateLessonContent($extractedText);
-            
-            // Step 3: Generate AI report
-            Log::info('Starting AI report generation', [
-                'text_length' => strlen($extractedText),
-                'word_count' => $extractionResult['word_count']
+            // Step 2: Generate AI report directly from PDF
+            Log::info('Starting AI report generation from PDF', [
+                'filename' => $pdfFile->getClientOriginalName(),
+                'file_size' => $pdfFile->getSize()
             ]);
 
-            $aiResult = $this->openAIService->generateDailyReport($extractedText, $additionalNotes);
+            $aiResult = $this->openAIService->generateDailyReportFromPDF($pdfFile, $additionalNotes);
             
             if (!$aiResult['success']) {
                 return [
                     'success' => false,
                     'error' => $aiResult['error'],
-                    'stage' => 'ai_generation',
-                    'extracted_text' => $extractedText, // For debugging
+                    'stage' => 'ai_generation'
                 ];
             }
 
-            // Step 4: Prepare final response
+            // Step 3: Prepare final response
             $response = [
                 'success' => true,
                 'report' => $aiResult['report'],
                 'metadata' => [
                     'processing_time' => microtime(true),
-                    'pdf_metadata' => $extractionResult['metadata'],
-                    'text_stats' => [
-                        'word_count' => $extractionResult['word_count'],
-                        'character_count' => $extractionResult['character_count']
-                    ],
-                    'validation' => $validation,
-                    'ai_usage' => $aiResult['usage'] ?? null
+                    'pdf_metadata' => $validationResult['metadata'],
+                    'ai_usage' => $aiResult['usage'] ?? null,
+                    'processing_method' => 'direct_pdf_analysis'
                 ]
             ];
 

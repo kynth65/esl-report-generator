@@ -126,9 +126,9 @@ class DailyReportController extends Controller
 
             $pdfFile = $request->file('pdf_file');
             
-            // Only extract text, don't generate AI report
+            // Only validate PDF, don't generate AI report
             $pdfService = app(\App\Services\PDFParsingService::class);
-            $result = $pdfService->extractText($pdfFile);
+            $result = $pdfService->validatePDF($pdfFile);
 
             if (!$result['success']) {
                 return response()->json([
@@ -137,15 +137,12 @@ class DailyReportController extends Controller
                 ], 400);
             }
 
-            $validation = $pdfService->validateLessonContent($result['text']);
-
             return response()->json([
                 'success' => true,
-                'message' => 'PDF parsed successfully',
+                'message' => 'PDF validation successful - ready for AI processing',
                 'data' => [
-                    'extracted_text' => $result['text'],
                     'metadata' => $result['metadata'],
-                    'validation' => $validation
+                    'status' => 'PDF is valid and ready for OpenAI analysis'
                 ]
             ]);
 
