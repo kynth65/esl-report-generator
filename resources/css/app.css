@@ -60,6 +60,12 @@
 }
 
 :root {
+    /* ESL Report Generator Custom Colors */
+    --esl-bg-light: #f7fbfc;
+    --esl-section: #d6e6f2;
+    --esl-highlight: #b9d7ea;
+    --esl-primary: #769fcd;
+    
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
