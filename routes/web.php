@@ -24,6 +24,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('monthly-comparison', function () {
         return Inertia::render('MonthlyComparisonPage');
     })->name('monthly-comparison');
+
+    // API Routes for Daily Reports
+    Route::prefix('api/reports')->name('api.reports.')->group(function () {
+        Route::post('daily/generate', [App\Http\Controllers\Reports\DailyReportController::class, 'generate'])
+            ->name('daily.generate');
+        Route::get('daily/sample', [App\Http\Controllers\Reports\DailyReportController::class, 'sample'])
+            ->name('daily.sample');
+        Route::post('daily/test-pdf', [App\Http\Controllers\Reports\DailyReportController::class, 'testPdfParsing'])
+            ->name('daily.test-pdf');
+    });
 });
 
 require __DIR__.'/settings.php';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { FileUploadBox } from '@/components/common/FileUploadBox';
 import { NotesTextarea } from '@/components/common/NotesTextarea';
@@ -20,11 +20,35 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface ReportData {
+    student_name: string;
+    class_level: string;
+    date: string;
+    lesson_focus: string;
+    student_performance: string;
+    key_achievements: string;
+    areas_for_improvement: string;
+    skills_assessment: {
+        [key: string]: {
+            level: string;
+            details: string;
+        };
+    };
+    recommendations: string[];
+    homework_exercises: Array<{
+        type: string;
+        description: string;
+        estimated_time: string;
+    }>;
+}
+
 export default function DailySummarizationPage() {
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [notes, setNotes] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [reportData, setReportData] = useState<ReportData | null>(null);
+    const [error, setError] = useState<string>('');
 
     const handleFileUpload = (files: File[]) => {
         setUploadedFiles(files);
@@ -37,20 +61,49 @@ export default function DailySummarizationPage() {
         }
 
         setIsGenerating(true);
-        
-        // Simulate AI processing time
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        setIsGenerating(false);
-        setShowPreview(true);
-        
-        // Scroll to preview section
-        setTimeout(() => {
-            document.getElementById('preview-section')?.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+        setError('');
+
+        try {
+            // Create FormData for file upload
+            const formData = new FormData();
+            formData.append('pdf_file', uploadedFiles[0]);
+            if (notes.trim()) {
+                formData.append('notes', notes);
+            }
+
+            // Make API call to generate report
+            const response = await fetch('/api/reports/daily/generate', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
             });
-        }, 100);
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to generate report');
+            }
+
+            // Set the report data
+            setReportData(result.data.report);
+            setShowPreview(true);
+            
+            // Scroll to preview section
+            setTimeout(() => {
+                document.getElementById('preview-section')?.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+
+        } catch (err: any) {
+            console.error('Report generation failed:', err);
+            setError(err.message || 'An unexpected error occurred while generating the report.');
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const handleDownload = () => {
@@ -134,6 +187,18 @@ export default function DailySummarizationPage() {
                                 </div>
                             </div>
                         )}
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="text-center">
+                                <div className="inline-flex items-center px-4 py-2 bg-red-50 border border-red-200 rounded-lg">
+                                    <Icon name="AlertCircle" className="h-4 w-4 mr-2 text-red-600" />
+                                    <span className="text-sm text-red-700">
+                                        {error}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Preview Section */}
@@ -143,7 +208,7 @@ export default function DailySummarizationPage() {
                             isVisible={showPreview}
                             onDownload={handleDownload}
                         >
-                            <DailyReportPreview />
+                            <DailyReportPreview data={reportData || undefined} />
                         </PreviewSection>
                     </div>
 
