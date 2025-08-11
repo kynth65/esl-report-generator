@@ -1,0 +1,136 @@
+## 1. Project Name
+ESL Report Generator – Multi-Level Summarization System
+
+## 2. Project Summary
+A web app where teachers can generate three different types of reports:
+- **Daily Progress Summary** - Upload individual lesson reports for daily summaries
+- **Monthly Progress Summary** - Aggregate monthly performance overview  
+- **Monthly Comparison Report** - Compare current month vs previous month performance
+
+Each page will have its own upload functionality and generate specific report types with homework worksheets.
+
+**Phase 1 Goal:**
+- Build the UI only (three separate pages with upload, preview, export) without AI backend
+- This will later be connected to an AI API for content generation
+
+## 3. Core Pages & Components
+
+### A) Main Dashboard/Landing
+- **Purpose:** Navigation hub to choose report type
+- **UI Elements:**
+  - App title & description
+  - Three large action cards:
+    1. "Daily Summarization" → Navigate to daily page
+    2. "Monthly Summarization" → Navigate to monthly page  
+    3. "Monthly Comparison" → Navigate to comparison page
+  - Each card shows brief description of what that report generates
+
+### B) Daily Summarization Page
+- **Purpose:** Generate daily progress summary from single lesson report
+- **UI Elements:**
+  - Page title: "Daily Progress Summary Generator"
+  - File Upload Box (drag & drop PDF)
+  - Textarea for "Additional Notes" (optional)
+  - "Generate Daily Summary" button
+  - **Inline Preview Section** (shows/hides after generation):
+    - Daily Progress Summary layout
+    - 10-item Homework Worksheet
+  - "Download PDF" button
+  - "Back to Dashboard" link
+
+### C) Monthly Summarization Page  
+- **Purpose:** Generate monthly overview from multiple reports or data
+- **UI Elements:**
+  - Page title: "Monthly Progress Summary Generator"
+  - Multiple file upload or date range selector
+  - "Student/Class Selection" dropdown (for future multi-class support)
+  - Textarea for "Monthly Notes" (optional)
+  - "Generate Monthly Summary" button
+  - **Inline Preview Section:**
+    - Monthly overview with trends
+    - Key achievements & areas for improvement
+    - Suggested focus areas for next month
+  - "Download PDF" button
+  - "Back to Dashboard" link
+
+### D) Monthly Comparison Page
+- **Purpose:** Compare current month vs previous month performance
+- **UI Elements:**
+  - Page title: "Monthly Comparison Report Generator"
+  - Two upload sections:
+    - "Current Month Data" upload
+    - "Previous Month Data" upload
+  - "Comparison Period" date selectors
+  - Textarea for "Comparison Notes" (optional)  
+  - "Generate Comparison Report" button
+  - **Inline Preview Section:**
+    - Side-by-side comparison charts
+    - Improvement/decline indicators
+    - Recommendation summary
+  - "Download PDF" button
+  - "Back to Dashboard" link
+
+## 4. Navigation Structure
+```
+Main Dashboard
+├── Daily Summarization Page
+├── Monthly Summarization Page  
+└── Monthly Comparison Page
+```
+
+## 5. Styling & UI Guidelines
+- **Framework:** React + TailwindCSS
+- **Theme:** Clean, professional, teacher-friendly
+- **Font:** Inter or system fonts
+- **Color Palette:**
+  - First Color: #f7fbfc (Light blue-gray background)
+  - Second Color: #d6e6f2 (Soft blue for sections)
+  - Third Color: #b9d7ea (Medium blue for highlights)
+  - Fourth Color: #769fcd (Deep blue for primary actions)
+  - Background: White with first-color sections
+- **Color Usage:**
+  - Primary buttons/actions: Fourth Color (#769fcd)
+  - Section backgrounds: First Color (#f7fbfc) 
+  - Card backgrounds: Second Color (#d6e6f2)
+  - Hover states: Third Color (#b9d7ea)
+- **Icons:** Use Lucide React icons + emoji for previews
+
+## 6. File Structure (Suggested for Cursor Project)
+```
+/src
+  /components
+    /common
+      FileUploadBox.jsx
+      NotesTextarea.jsx
+      PreviewSection.jsx
+      ActionCard.jsx
+    /daily
+      DailyReportPreview.jsx
+    /monthly  
+      MonthlyReportPreview.jsx
+    /comparison
+      ComparisonReportPreview.jsx
+  /pages
+    Dashboard.jsx
+    DailySummarizationPage.jsx
+    MonthlySummarizationPage.jsx
+    MonthlyComparisonPage.jsx
+  /styles
+    global.css
+  App.jsx
+```
+
+## 7. Phase 1 Deliverables (UI Only)
+- **Main Dashboard** with three navigation cards
+- **Daily Summarization Page** with upload & inline preview
+- **Monthly Summarization Page** with multi-upload & preview
+- **Monthly Comparison Page** with dual-upload & comparison preview
+- Responsive design for all pages
+- Navigation between all pages
+- Static preview content (no backend integration yet)
+
+## 8. Future Phase 2 Integration Points
+- AI API connections for PDF parsing
+- Real data processing for monthly aggregation
+- PDF export functionality
+- User authentication (if multi-teacher support needed)
