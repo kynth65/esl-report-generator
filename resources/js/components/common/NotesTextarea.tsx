@@ -25,15 +25,15 @@ export function NotesTextarea({
     const characterCount = value.length;
 
     return (
-        <div className={`space-y-2 ${className}`}>
+        <div className={`space-y-3 w-full ${className}`}>
             <Label htmlFor="notes-textarea" className="text-sm font-medium text-gray-700">
                 {label} (Optional)
             </Label>
             
-            <Card className={`transition-all duration-200 ${
-                isFocused ? 'ring-2 ring-[#769fcd]/20 border-[#769fcd]' : 'border-[#d6e6f2]'
+            <Card className={`transition-all duration-200 shadow-sm hover:shadow-md ${
+                isFocused ? 'ring-2 ring-[#769fcd]/20 border-[#769fcd] shadow-md' : 'border-[#d6e6f2]'
             }`}>
-                <CardContent className="p-4">
+                <CardContent className="p-4 sm:p-5">
                     <textarea
                         id="notes-textarea"
                         value={value}
@@ -43,15 +43,17 @@ export function NotesTextarea({
                         placeholder={placeholder}
                         rows={rows}
                         maxLength={maxLength}
-                        className="w-full resize-none border-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm leading-relaxed"
+                        className="w-full resize-none border-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm leading-relaxed focus:placeholder-gray-400 transition-colors"
                         style={{ minHeight: `${rows * 1.5}rem` }}
                     />
                 </CardContent>
             </Card>
             
-            <div className="flex justify-between items-center text-xs text-gray-500">
-                <span>Optional field - add any relevant context or special instructions</span>
-                <span className={`${
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-xs text-gray-500">
+                <span className="order-2 sm:order-1">
+                    Optional field - add any relevant context or special instructions
+                </span>
+                <span className={`order-1 sm:order-2 font-mono tabular-nums ${
                     characterCount > maxLength * 0.9 ? 'text-amber-600' : 
                     characterCount === maxLength ? 'text-red-600' : 'text-gray-400'
                 }`}>
