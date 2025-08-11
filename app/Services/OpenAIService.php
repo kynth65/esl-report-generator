@@ -54,7 +54,7 @@ class OpenAIService
             
             // Use a simpler text model approach since vision models have limitations with PDFs
             // We'll create a fallback approach that processes the PDF content
-            $response = $this->client->post('/chat/completions', [
+            $response = $this->client->post('/v1/chat/completions', [
                 'json' => [
                     'model' => 'gpt-4o-mini',
                     'messages' => [
@@ -126,7 +126,7 @@ class OpenAIService
         try {
             $prompt = $this->buildDailyReportPrompt($lessonContent, $additionalNotes);
             
-            $response = $this->client->post('/chat/completions', [
+            $response = $this->client->post('/v1/chat/completions', [
                 'json' => [
                     'model' => $this->model,
                     'messages' => [
