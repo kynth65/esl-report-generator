@@ -6,6 +6,11 @@ interface ReportData {
     student_performance: string;
     key_achievements: string;
     areas_for_improvement: string;
+    lesson_highlights?: {
+        vocabulary_learned?: string[];
+        grammar_errors_addressed?: string[];
+        pronunciation_challenges?: string[];
+    };
     skills_assessment: {
         [key: string]: {
             level: string;
@@ -71,6 +76,68 @@ export function DailyReportPreview({ data }: DailyReportPreviewProps) {
                         </p>
                     </div>
                 </div>
+
+                {/* Lesson Highlights Section */}
+                {data?.lesson_highlights && (
+                    <div className="bg-gradient-to-r from-[#f7fbfc] to-[#e8f4f8] p-6 rounded-lg border border-[#d6e6f2]">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            ✨ Lesson Highlights
+                        </h2>
+                        
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {/* Vocabulary Learned */}
+                            {data.lesson_highlights.vocabulary_learned && data.lesson_highlights.vocabulary_learned.length > 0 && (
+                                <div className="bg-white p-4 rounded-lg border border-[#d6e6f2]">
+                                    <h3 className="text-base font-semibold text-[#769fcd] mb-3 flex items-center border-b border-[#d6e6f2] pb-2">
+                                        📚 Vocabulary Learned
+                                    </h3>
+                                    <ul className="space-y-2 text-sm text-gray-700">
+                                        {data.lesson_highlights.vocabulary_learned.map((vocab, index) => (
+                                            <li key={index} className="flex items-start">
+                                                <span className="text-[#769fcd] mr-2">•</span>
+                                                <span>{vocab}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Grammar Errors Addressed */}
+                            {data.lesson_highlights.grammar_errors_addressed && data.lesson_highlights.grammar_errors_addressed.length > 0 && (
+                                <div className="bg-white p-4 rounded-lg border border-[#d6e6f2]">
+                                    <h3 className="text-base font-semibold text-[#769fcd] mb-3 flex items-center border-b border-[#d6e6f2] pb-2">
+                                        📝 Grammar Errors Addressed
+                                    </h3>
+                                    <ul className="space-y-2 text-sm text-gray-700">
+                                        {data.lesson_highlights.grammar_errors_addressed.map((error, index) => (
+                                            <li key={index} className="flex items-start">
+                                                <span className="text-[#769fcd] mr-2">•</span>
+                                                <span>{error}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Pronunciation Challenges */}
+                            {data.lesson_highlights.pronunciation_challenges && data.lesson_highlights.pronunciation_challenges.length > 0 && (
+                                <div className="bg-white p-4 rounded-lg border border-[#d6e6f2]">
+                                    <h3 className="text-base font-semibold text-[#769fcd] mb-3 flex items-center border-b border-[#d6e6f2] pb-2">
+                                        🗣️ Pronunciation Challenges
+                                    </h3>
+                                    <ul className="space-y-2 text-sm text-gray-700">
+                                        {data.lesson_highlights.pronunciation_challenges.map((challenge, index) => (
+                                            <li key={index} className="flex items-start">
+                                                <span className="text-[#769fcd] mr-2">•</span>
+                                                <span>{challenge}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Skills Assessment Grid */}
                 <div className="grid md:grid-cols-2 gap-4">

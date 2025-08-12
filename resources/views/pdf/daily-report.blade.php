@@ -79,6 +79,32 @@
             font-weight: bold;
         }
         
+        .highlight-subsection {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .highlight-title {
+            color: #769fcd;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+            border-bottom: 1px solid #d6e6f2;
+            padding-bottom: 3px;
+        }
+        
+        .highlight-list {
+            margin: 0;
+            padding-left: 15px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        
+        .highlight-list li {
+            margin-bottom: 4px;
+            padding: 2px 0;
+        }
+        
         .skills-grid {
             display: table;
             width: 100%;
@@ -320,6 +346,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Lesson Highlights -->
+    @if(isset($report['lesson_highlights']) && is_array($report['lesson_highlights']))
+    <div class="section">
+        <div class="section-title">✨ Lesson Highlights</div>
+        <div class="section-content">
+            
+            <!-- Vocabulary Learned -->
+            @if(isset($report['lesson_highlights']['vocabulary_learned']) && is_array($report['lesson_highlights']['vocabulary_learned']))
+            <div class="highlight-subsection">
+                <h4 class="highlight-title">📚 Vocabulary Learned</h4>
+                <ul class="highlight-list">
+                    @foreach($report['lesson_highlights']['vocabulary_learned'] as $vocab)
+                        <li>{{ is_array($vocab) ? implode(' ', $vocab) : $vocab }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <!-- Grammar Errors Addressed -->
+            @if(isset($report['lesson_highlights']['grammar_errors_addressed']) && is_array($report['lesson_highlights']['grammar_errors_addressed']))
+            <div class="highlight-subsection">
+                <h4 class="highlight-title">📝 Grammar Errors Addressed</h4>
+                <ul class="highlight-list">
+                    @foreach($report['lesson_highlights']['grammar_errors_addressed'] as $error)
+                        <li>{{ is_array($error) ? implode(' ', $error) : $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <!-- Pronunciation Challenges -->
+            @if(isset($report['lesson_highlights']['pronunciation_challenges']) && is_array($report['lesson_highlights']['pronunciation_challenges']))
+            <div class="highlight-subsection">
+                <h4 class="highlight-title">🗣️ Pronunciation Challenges</h4>
+                <ul class="highlight-list">
+                    @foreach($report['lesson_highlights']['pronunciation_challenges'] as $challenge)
+                        <li>{{ is_array($challenge) ? implode(' ', $challenge) : $challenge }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
+        </div>
+    </div>
+    @endif
 
     <!-- Skills Assessment -->
     <div class="section">

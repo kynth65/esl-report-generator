@@ -45,6 +45,7 @@ class OpenAIService
    */
   public function generateDailyReportFromPDF(UploadedFile $pdfFile, string $additionalNotes = ''): array
   {
+
     try {
       // Convert PDF to base64 for OpenAI API
       $pdfContent = file_get_contents($pdfFile->getRealPath());
@@ -209,6 +210,23 @@ Please create a detailed daily progress report in JSON format with the following
   \"student_performance\": \"[2-3 sentence analysis of engagement and comprehension]\",
   \"key_achievements\": \"[Specific accomplishments and breakthroughs]\",
   \"areas_for_improvement\": \"[Constructive feedback on areas needing attention]\",
+  \"lesson_highlights\": {
+    \"vocabulary_learned\": [
+      \"[List 5-8 important vocabulary words the student learned today]\",
+      \"[Include definitions or context for each word]\",
+      \"[Focus on words that were new or challenging for the student]\"
+    ],
+    \"grammar_errors_addressed\": [
+      \"[List 3-5 specific grammar mistakes the student made]\",
+      \"[Include the incorrect usage and the correct form]\",
+      \"[Focus on recurring errors that need attention]\"
+    ],
+    \"pronunciation_challenges\": [
+      \"[List 3-5 words or sounds the student had difficulty pronouncing]\",
+      \"[Include phonetic guidance or tips for improvement]\",
+      \"[Note progress made during the lesson]\"
+    ]
+  },
   \"skills_assessment\": {
     \"speaking_pronunciation\": {
       \"level\": \"[Excellent/Good/Progressing/Needs Practice]\",
@@ -336,6 +354,23 @@ Please create a detailed daily progress report in JSON format with the following
   \"student_performance\": \"[Generate realistic 2-3 sentences about typical student engagement, participation, and comprehension levels]\",
   \"key_achievements\": \"[List specific accomplishments that would occur in an ESL lesson]\",
   \"areas_for_improvement\": \"[Provide constructive feedback on common areas ESL students need to work on]\",
+  \"lesson_highlights\": {
+    \"vocabulary_learned\": [
+      \"[List 5-8 important vocabulary words the student learned today]\",
+      \"[Include definitions or context for each word]\",
+      \"[Focus on words that were new or challenging for the student]\"
+    ],
+    \"grammar_errors_addressed\": [
+      \"[List 3-5 specific grammar mistakes the student made]\",
+      \"[Include the incorrect usage and the correct form]\",
+      \"[Focus on recurring errors that need attention]\"
+    ],
+    \"pronunciation_challenges\": [
+      \"[List 3-5 words or sounds the student had difficulty pronouncing]\",
+      \"[Include phonetic guidance or tips for improvement]\",
+      \"[Note progress made during the lesson]\"
+    ]
+  },
   \"skills_assessment\": {
     \"speaking_pronunciation\": {
       \"level\": \"[Choose from: Excellent/Good/Progressing/Needs Practice]\",
