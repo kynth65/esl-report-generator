@@ -189,49 +189,87 @@
             color: #666;
         }
         
-        .homework-grid {
+        .homework-part {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .part-title {
+            background: linear-gradient(135deg, #769fcd 0%, #5a7ba1 100%);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 3px;
+        }
+        
+        .part-instructions {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        
+        .mcq-item {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .mcq-question {
+            font-size: 11px;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .mcq-options {
+            margin-left: 15px;
+        }
+        
+        .mcq-option {
+            font-size: 10px;
+            margin-bottom: 3px;
+            padding: 2px 0;
+        }
+        
+        .construction-item {
+            margin-bottom: 18px;
+            page-break-inside: avoid;
             display: table;
             width: 100%;
         }
         
-        .homework-item {
-            display: table-row;
-            page-break-inside: avoid;
+        .construction-number {
+            display: table-cell;
+            width: 30px;
+            font-weight: bold;
+            font-size: 11px;
+            vertical-align: top;
+            padding-top: 2px;
         }
         
-        .homework-number, .homework-type, .homework-description, .homework-time {
+        .construction-content {
             display: table-cell;
-            padding: 8px 6px;
-            border-bottom: 1px solid #ddd;
             vertical-align: top;
         }
         
-        .homework-number {
-            width: 8%;
-            text-align: center;
-            font-weight: bold;
-            background: #769fcd;
-            color: white;
-            border-radius: 3px;
-        }
-        
-        .homework-type {
-            width: 22%;
-            font-weight: bold;
+        .construction-instruction {
             font-size: 10px;
-        }
-        
-        .homework-description {
-            width: 55%;
-            font-size: 10px;
+            margin-bottom: 4px;
             line-height: 1.3;
         }
         
-        .homework-time {
-            width: 15%;
-            font-size: 9px;
-            text-align: center;
-            background: #f0f0f0;
+        .construction-example {
+            font-size: 10px;
+            color: #555;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .construction-space {
+            font-size: 10px;
+            margin-bottom: 8px;
+            line-height: 1.5;
         }
         
         .footer-notes {
@@ -354,37 +392,139 @@
                 <div class="homework-subtitle">Complete these exercises to reinforce today's learning objectives</div>
             </div>
             
-            <div class="homework-grid">
-                @if(isset($report['homework_exercises']) && is_array($report['homework_exercises']))
-                    @foreach($report['homework_exercises'] as $index => $exercise)
-                        <div class="homework-item">
-                            <div class="homework-number">{{ $index + 1 }}</div>
-                            <div class="homework-type">{{ is_array($exercise['type'] ?? null) ? implode(' ', $exercise['type']) : ($exercise['type'] ?? 'Exercise') }}</div>
-                            <div class="homework-description">{{ is_array($exercise['description'] ?? null) ? implode(' ', $exercise['description']) : ($exercise['description'] ?? 'Exercise description') }}</div>
-                            <div class="homework-time">{{ is_array($exercise['estimated_time'] ?? null) ? implode(' ', $exercise['estimated_time']) : ($exercise['estimated_time'] ?? '5-10 min') }}</div>
-                        </div>
-                    @endforeach
-                @else
-                    @for($i = 1; $i <= 10; $i++)
-                        <div class="homework-item">
-                            <div class="homework-number">{{ $i }}</div>
-                            <div class="homework-type">
-                                @if($i <= 3)
-                                    Vocabulary Practice
-                                @elseif($i <= 6)
-                                    Grammar Exercise
-                                @elseif($i <= 8)
-                                    Reading Comprehension
+            @if(isset($report['homework_exercises']['multiple_choice_questions']) || isset($report['homework_exercises']['sentence_constructions']))
+                
+                <!-- Multiple Choice Questions Section -->
+                <div class="homework-part">
+                    <h4 class="part-title">Part A: Multiple Choice Questions</h4>
+                    <div class="part-instructions">Choose the best answer for each question by circling the letter.</div>
+                    
+                    @if(isset($report['homework_exercises']['multiple_choice_questions']) && is_array($report['homework_exercises']['multiple_choice_questions']))
+                        @foreach($report['homework_exercises']['multiple_choice_questions'] as $index => $mcq)
+                            <div class="mcq-item">
+                                <div class="mcq-question">
+                                    <strong>{{ $index + 1 }}.</strong> {{ is_array($mcq['question'] ?? null) ? implode(' ', $mcq['question']) : ($mcq['question'] ?? 'Sample multiple choice question') }}
+                                </div>
+                                @if(isset($mcq['options']) && is_array($mcq['options']))
+                                    <div class="mcq-options">
+                                        @foreach($mcq['options'] as $letter => $option)
+                                            <div class="mcq-option">
+                                                <strong>{{ strtoupper($letter) }})</strong> {{ is_array($option) ? implode(' ', $option) : $option }}
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    Writing Practice
+                                    <div class="mcq-options">
+                                        <div class="mcq-option"><strong>A)</strong> Sample option A</div>
+                                        <div class="mcq-option"><strong>B)</strong> Sample option B</div>
+                                        <div class="mcq-option"><strong>C)</strong> Sample option C</div>
+                                        <div class="mcq-option"><strong>D)</strong> Sample option D</div>
+                                    </div>
                                 @endif
                             </div>
-                            <div class="homework-description">AI-generated exercise based on lesson content and student needs</div>
-                            <div class="homework-time">{{ 5 + ($i * 2) }} min</div>
+                        @endforeach
+                    @else
+                        @for($i = 1; $i <= 5; $i++)
+                            <div class="mcq-item">
+                                <div class="mcq-question">
+                                    <strong>{{ $i }}.</strong> Sample multiple choice question {{ $i }} based on lesson content
+                                </div>
+                                <div class="mcq-options">
+                                    <div class="mcq-option"><strong>A)</strong> Sample option A</div>
+                                    <div class="mcq-option"><strong>B)</strong> Sample option B</div>
+                                    <div class="mcq-option"><strong>C)</strong> Sample option C</div>
+                                    <div class="mcq-option"><strong>D)</strong> Sample option D</div>
+                                </div>
+                            </div>
+                        @endfor
+                    @endif
+                </div>
+                
+                <!-- Sentence Construction Section -->
+                <div class="homework-part">
+                    <h4 class="part-title">Part B: Sentence Construction</h4>
+                    <div class="part-instructions">Follow the instructions to create sentences. Use the examples as your guide.</div>
+                    
+                    @if(isset($report['homework_exercises']['sentence_constructions']) && is_array($report['homework_exercises']['sentence_constructions']))
+                        @foreach($report['homework_exercises']['sentence_constructions'] as $index => $construction)
+                            <div class="construction-item">
+                                <div class="construction-number">{{ $index + 1 }}.</div>
+                                <div class="construction-content">
+                                    <div class="construction-instruction">
+                                        <strong>Instructions:</strong> {{ is_array($construction['instruction'] ?? null) ? implode(' ', $construction['instruction']) : ($construction['instruction'] ?? 'Sample sentence construction instruction') }}
+                                    </div>
+                                    <div class="construction-example">
+                                        <strong>Example:</strong> {{ is_array($construction['example'] ?? null) ? implode(' ', $construction['example']) : ($construction['example'] ?? 'Sample example sentence') }}
+                                    </div>
+                                    <div class="construction-space">
+                                        <strong>Your sentence:</strong> ________________________________________________
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        @for($i = 1; $i <= 5; $i++)
+                            <div class="construction-item">
+                                <div class="construction-number">{{ $i }}.</div>
+                                <div class="construction-content">
+                                    <div class="construction-instruction">
+                                        <strong>Instructions:</strong> Sample sentence construction instruction {{ $i }}
+                                    </div>
+                                    <div class="construction-example">
+                                        <strong>Example:</strong> Sample example sentence {{ $i }}
+                                    </div>
+                                    <div class="construction-space">
+                                        <strong>Your sentence:</strong> ________________________________________________
+                                    </div>
+                                </div>
+                            </div>
+                        @endfor
+                    @endif
+                </div>
+                
+            @else
+                <!-- Fallback content if homework_exercises structure is not available -->
+                <div class="homework-part">
+                    <h4 class="part-title">Part A: Multiple Choice Questions</h4>
+                    <div class="part-instructions">Choose the best answer for each question by circling the letter.</div>
+                    
+                    @for($i = 1; $i <= 5; $i++)
+                        <div class="mcq-item">
+                            <div class="mcq-question">
+                                <strong>{{ $i }}.</strong> Sample multiple choice question {{ $i }} based on lesson content
+                            </div>
+                            <div class="mcq-options">
+                                <div class="mcq-option"><strong>A)</strong> Sample option A</div>
+                                <div class="mcq-option"><strong>B)</strong> Sample option B</div>
+                                <div class="mcq-option"><strong>C)</strong> Sample option C</div>
+                                <div class="mcq-option"><strong>D)</strong> Sample option D</div>
+                            </div>
                         </div>
                     @endfor
-                @endif
-            </div>
+                </div>
+                
+                <div class="homework-part">
+                    <h4 class="part-title">Part B: Sentence Construction</h4>
+                    <div class="part-instructions">Follow the instructions to create sentences. Use the examples as your guide.</div>
+                    
+                    @for($i = 1; $i <= 5; $i++)
+                        <div class="construction-item">
+                            <div class="construction-number">{{ $i }}.</div>
+                            <div class="construction-content">
+                                <div class="construction-instruction">
+                                    <strong>Instructions:</strong> Sample sentence construction instruction {{ $i }}
+                                </div>
+                                <div class="construction-example">
+                                    <strong>Example:</strong> Sample example sentence {{ $i }}
+                                </div>
+                                <div class="construction-space">
+                                    <strong>Your sentence:</strong> ________________________________________________
+                                </div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            @endif
             
             <div class="footer-notes">
                 <strong>Due Date:</strong> Next class session<br>

@@ -13,11 +13,22 @@ interface ReportData {
         };
     };
     recommendations: string[];
-    homework_exercises: Array<{
-        type: string;
-        description: string;
-        estimated_time: string;
-    }>;
+    homework_exercises: {
+        multiple_choice_questions: Array<{
+            question: string;
+            options: {
+                a: string;
+                b: string;
+                c: string;
+                d: string;
+            };
+            correct_answer: string;
+        }>;
+        sentence_constructions: Array<{
+            instruction: string;
+            example: string;
+        }>;
+    };
 }
 
 interface DailyReportPreviewProps {
@@ -134,61 +145,103 @@ export function DailyReportPreview({ data }: DailyReportPreviewProps) {
                         📚 Personalized Homework Worksheet
                     </h2>
                     <p className="text-sm text-gray-600 mb-6">
-                        Complete these 10 exercises to reinforce today's learning objectives
+                        Complete these exercises to reinforce today's learning objectives
                     </p>
                     
-                    <div className="space-y-4">
-                        {data?.homework_exercises && data.homework_exercises.length > 0 ? 
-                            data.homework_exercises.map((exercise, i) => (
-                                <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
-                                    <div className="flex items-start space-x-3">
-                                        <span className="flex-shrink-0 w-8 h-8 bg-[#769fcd] text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                            {i + 1}
-                                        </span>
-                                        <div className="flex-1 space-y-2">
+                    {/* Multiple Choice Questions Section */}
+                    <div className="mb-8">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 bg-gradient-to-r from-[#769fcd] to-[#5a7ba1] text-white p-3 rounded">
+                            Part A: Multiple Choice Questions
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4 italic">Choose the best answer for each question by circling the letter.</p>
+                        
+                        <div className="space-y-4">
+                            {data?.homework_exercises?.multiple_choice_questions && data.homework_exercises.multiple_choice_questions.length > 0 ? 
+                                data.homework_exercises.multiple_choice_questions.map((mcq, i) => (
+                                    <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
+                                        <div className="space-y-3">
                                             <p className="font-medium text-gray-800">
-                                                {exercise.type}
+                                                <strong>{i + 1}.</strong> {mcq.question}
                                             </p>
-                                            <p className="text-sm text-gray-600">
-                                                {exercise.description}
-                                            </p>
-                                            <div className="text-xs text-gray-500 mt-2">
-                                                <span className="inline-block bg-gray-100 px-2 py-1 rounded">
-                                                    Estimated time: {exercise.estimated_time}
-                                                </span>
+                                            <div className="ml-4 space-y-2">
+                                                <div className="text-sm text-gray-700"><strong>A)</strong> {mcq.options.a}</div>
+                                                <div className="text-sm text-gray-700"><strong>B)</strong> {mcq.options.b}</div>
+                                                <div className="text-sm text-gray-700"><strong>C)</strong> {mcq.options.c}</div>
+                                                <div className="text-sm text-gray-700"><strong>D)</strong> {mcq.options.d}</div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )) :
-                            Array.from({ length: 10 }, (_, i) => (
-                                <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
-                                    <div className="flex items-start space-x-3">
-                                        <span className="flex-shrink-0 w-8 h-8 bg-[#769fcd] text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                            {i + 1}
-                                        </span>
-                                        <div className="flex-1 space-y-2">
+                                )) :
+                                Array.from({ length: 5 }, (_, i) => (
+                                    <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
+                                        <div className="space-y-3">
                                             <p className="font-medium text-gray-800">
-                                                [Exercise Type]: {
-                                                    i < 3 ? 'Vocabulary Practice' :
-                                                    i < 6 ? 'Grammar Exercise' :
-                                                    i < 8 ? 'Reading Comprehension' :
-                                                    'Writing Practice'
-                                                }
+                                                <strong>{i + 1}.</strong> Sample multiple choice question {i + 1} based on lesson content
                                             </p>
-                                            <p className="text-sm text-gray-600">
-                                                [AI-generated exercise based on today's lesson content and student's specific needs]
-                                            </p>
-                                            <div className="text-xs text-gray-500 mt-2">
-                                                <span className="inline-block bg-gray-100 px-2 py-1 rounded">
-                                                    Estimated time: {Math.floor(Math.random() * 10) + 5} minutes
-                                                </span>
+                                            <div className="ml-4 space-y-2">
+                                                <div className="text-sm text-gray-700"><strong>A)</strong> Sample option A</div>
+                                                <div className="text-sm text-gray-700"><strong>B)</strong> Sample option B</div>
+                                                <div className="text-sm text-gray-700"><strong>C)</strong> Sample option C</div>
+                                                <div className="text-sm text-gray-700"><strong>D)</strong> Sample option D</div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
-                        }
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    {/* Sentence Construction Section */}
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 bg-gradient-to-r from-[#769fcd] to-[#5a7ba1] text-white p-3 rounded">
+                            Part B: Sentence Construction
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4 italic">Follow the instructions to create sentences. Use the examples as your guide.</p>
+                        
+                        <div className="space-y-4">
+                            {data?.homework_exercises?.sentence_constructions && data.homework_exercises.sentence_constructions.length > 0 ? 
+                                data.homework_exercises.sentence_constructions.map((construction, i) => (
+                                    <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
+                                        <div className="flex">
+                                            <div className="w-8 flex-shrink-0">
+                                                <span className="font-semibold text-gray-800">{i + 1}.</span>
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <div className="text-sm">
+                                                    <strong>Instructions:</strong> {construction.instruction}
+                                                </div>
+                                                <div className="text-sm text-gray-600">
+                                                    <strong>Example:</strong> {construction.example}
+                                                </div>
+                                                <div className="text-sm pt-2">
+                                                    <strong>Your sentence:</strong> ________________________________________________
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )) :
+                                Array.from({ length: 5 }, (_, i) => (
+                                    <div key={i} className="bg-white p-4 rounded border border-[#d6e6f2]">
+                                        <div className="flex">
+                                            <div className="w-8 flex-shrink-0">
+                                                <span className="font-semibold text-gray-800">{i + 1}.</span>
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <div className="text-sm">
+                                                    <strong>Instructions:</strong> Sample sentence construction instruction {i + 1}
+                                                </div>
+                                                <div className="text-sm text-gray-600">
+                                                    <strong>Example:</strong> Sample example sentence {i + 1}
+                                                </div>
+                                                <div className="text-sm pt-2">
+                                                    <strong>Your sentence:</strong> ________________________________________________
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            }
+                        </div>
                     </div>
                     
                     <div className="mt-6 p-4 bg-[#d6e6f2] rounded-lg">

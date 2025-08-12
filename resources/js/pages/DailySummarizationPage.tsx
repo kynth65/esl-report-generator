@@ -35,11 +35,22 @@ interface ReportData {
         };
     };
     recommendations: string[];
-    homework_exercises: Array<{
-        type: string;
-        description: string;
-        estimated_time: string;
-    }>;
+    homework_exercises: {
+        multiple_choice_questions: Array<{
+            question: string;
+            options: {
+                a: string;
+                b: string;
+                c: string;
+                d: string;
+            };
+            correct_answer: string;
+        }>;
+        sentence_constructions: Array<{
+            instruction: string;
+            example: string;
+        }>;
+    };
 }
 
 export default function DailySummarizationPage() {

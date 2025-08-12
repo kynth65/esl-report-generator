@@ -166,16 +166,47 @@ class PDFGenerationService
             }
         }
 
-        // Validate homework exercises format
+        // Validate homework exercises format (new structure with MCQ and sentence constructions)
         if (isset($reportData['homework_exercises'])) {
             if (!is_array($reportData['homework_exercises'])) {
                 $errors[] = 'Homework exercises must be an array';
             } else {
-                foreach ($reportData['homework_exercises'] as $index => $exercise) {
-                    if (!is_array($exercise)) {
-                        $errors[] = "Homework exercise {$index} must be an array";
-                    } elseif (empty($exercise['type']) || empty($exercise['description'])) {
-                        $errors[] = "Homework exercise {$index} missing required fields";
+                // Check for new format (multiple_choice_questions and sentence_constructions)
+                if (isset($reportData['homework_exercises']['multiple_choice_questions'])) {
+                    if (!is_array($reportData['homework_exercises']['multiple_choice_questions'])) {
+                        $errors[] = 'Multiple choice questions must be an array';
+                    } else {
+                        foreach ($reportData['homework_exercises']['multiple_choice_questions'] as $index => $mcq) {
+                            if (!is_array($mcq) || empty($mcq['question']) || empty($mcq['options'])) {
+                                $errors[] = "Multiple choice question {$index} missing required fields";
+                            }
+                        }
+                    }
+                }
+                
+                if (isset($reportData['homework_exercises']['sentence_constructions'])) {
+                    if (!is_array($reportData['homework_exercises']['sentence_constructions'])) {
+                        $errors[] = 'Sentence constructions must be an array';
+                    } else {
+                        foreach ($reportData['homework_exercises']['sentence_constructions'] as $index => $construction) {
+                            if (!is_array($construction) || empty($construction['instruction']) || empty($construction['example'])) {
+                                $errors[] = "Sentence construction {$index} missing required fields";
+                            }
+                        }
+                    }
+                }
+                
+                // Also support legacy format for backward compatibility
+                if (!isset($reportData['homework_exercises']['multiple_choice_questions']) && 
+                    !isset($reportData['homework_exercises']['sentence_constructions']) &&
+                    is_array($reportData['homework_exercises'])) {
+                    // Legacy format validation
+                    foreach ($reportData['homework_exercises'] as $index => $exercise) {
+                        if (!is_array($exercise)) {
+                            $errors[] = "Homework exercise {$index} must be an array";
+                        } elseif (empty($exercise['type']) || empty($exercise['description'])) {
+                            $errors[] = "Homework exercise {$index} missing required fields";
+                        }
                     }
                 }
             }
