@@ -5,7 +5,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, FileText, Calendar, GitCompare } from 'lucide-react';
+import { LayoutGrid, FileText, Calendar, GitCompare } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -34,26 +34,23 @@ const eslReportItems: NavItem[] = [
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar 
+            collapsible="icon" 
+            variant="inset" 
+            className="bg-gradient-to-b from-sidebar via-[#f7fbfc] to-sidebar border-r border-[#d6e6f2]/20 shadow-lg backdrop-blur-sm"
+        >
+            <SidebarHeader className="border-b border-[#d6e6f2]/30 pb-4 mb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton 
+                            size="lg" 
+                            asChild 
+                            className="hover:bg-[#d6e6f2]/20 rounded-xl transition-all duration-300 hover:shadow-sm"
+                        >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -62,12 +59,12 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="space-y-6 px-2">
                 <NavMain items={mainNavItems} />
                 <NavESL items={eslReportItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-[#d6e6f2]/30 pt-4 mt-auto">
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>

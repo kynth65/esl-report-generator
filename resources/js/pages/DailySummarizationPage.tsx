@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { FileUploadBox } from '@/components/common/FileUploadBox';
@@ -7,6 +7,7 @@ import { PreviewSection } from '@/components/common/PreviewSection';
 import { DailyReportPreview } from '@/components/daily/DailyReportPreview';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -60,6 +61,37 @@ export default function DailySummarizationPage() {
     const [showPreview, setShowPreview] = useState(false);
     const [reportData, setReportData] = useState<ReportData | null>(null);
     const [error, setError] = useState<string>('');
+    const [generationProgress, setGenerationProgress] = useState<string>('');
+    const { playSound } = useNotificationSound();
+
+    // Progress tracking for generation
+    useEffect(() => {
+        let progressInterval: NodeJS.Timeout;
+        
+        if (isGenerating) {
+            const progressSteps = [
+                'Analyzing document structure...',
+                'Extracting student performance data...',
+                'Generating personalized feedback...',
+                'Creating homework exercises...',
+                'Finalizing report summary...'
+            ];
+            
+            let currentStep = 0;
+            setGenerationProgress(progressSteps[0]);
+            
+            progressInterval = setInterval(() => {
+                currentStep = (currentStep + 1) % progressSteps.length;
+                setGenerationProgress(progressSteps[currentStep]);
+            }, 3000);
+        }
+        
+        return () => {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        };
+    }, [isGenerating]);
 
     const handleFileUpload = (files: File[]) => {
         setUploadedFiles(files);
@@ -104,7 +136,10 @@ export default function DailySummarizationPage() {
             setReportData(result.data.report);
             setShowPreview(true);
             
-            // Scroll to preview section
+            // Play success notification sound
+            playSound('success');
+            
+            // Scroll to preview section with enhanced animation
             setTimeout(() => {
                 document.getElementById('preview-section')?.scrollIntoView({ 
                     behavior: 'smooth',
@@ -115,8 +150,10 @@ export default function DailySummarizationPage() {
         } catch (err: any) {
             console.error('Report generation failed:', err);
             setError(err.message || 'An unexpected error occurred while generating the report.');
+            playSound('error');
         } finally {
             setIsGenerating(false);
+            setGenerationProgress('');
         }
     };
 
@@ -227,12 +264,14 @@ export default function DailySummarizationPage() {
                                 onClick={handleGenerateReport}
                                 disabled={isGenerating || uploadedFiles.length === 0}
                                 size="lg"
-                                className="bg-[#769fcd] hover:bg-[#769fcd]/90 text-white px-12 py-4 text-lg"
+                                className={`bg-gradient-to-r from-[#769fcd] to-[#b9d7ea] hover:from-[#769fcd]/90 hover:to-[#b9d7ea]/90 text-white px-12 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${
+                                    isGenerating ? 'esl-generating animate-pulse-soft' : ''
+                                }`}
                             >
                                 {isGenerating ? (
                                     <>
-                                        <Icon name="Loader2" className="h-5 w-5 mr-2 animate-spin" />
-                                        Generating Summary...
+                                        <Icon name="Sparkles" className="h-5 w-5 mr-2 animate-bounce-gentle" />
+                                        <span className="animate-pulse">Generating Summary...</span>
                                     </>
                                 ) : (
                                     <>
@@ -243,14 +282,22 @@ export default function DailySummarizationPage() {
                             </Button>
                         </div>
 
-                        {/* Status Message */}
+                        {/* Enhanced Status Message */}
                         {isGenerating && (
-                            <div className="text-center">
-                                <div className="inline-flex items-center px-4 py-2 bg-[#f7fbfc] border border-[#d6e6f2] rounded-full">
-                                    <Icon name="Sparkles" className="h-4 w-4 mr-2 text-[#769fcd]" />
-                                    <span className="text-sm text-gray-600">
-                                        AI is analyzing your lesson report and generating personalized content...
-                                    </span>
+                            <div className="text-center animate-fadeInUp">
+                                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#f7fbfc] to-[#d6e6f2]/20 border border-[#b9d7ea]/30 rounded-full shadow-md backdrop-blur-sm">
+                                    <div className="relative">
+                                        <Icon name="Sparkles" className="h-5 w-5 mr-3 text-[#769fcd] animate-bounce-gentle" />
+                                        <div className="absolute -top-1 -right-1 h-3 w-3 bg-[#b9d7ea] rounded-full animate-ping"></div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            {generationProgress || 'AI is analyzing your lesson report...'}
+                                        </span>
+                                        <div className="h-1.5 w-48 bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-[#769fcd] to-[#b9d7ea] rounded-full animate-shimmer"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}

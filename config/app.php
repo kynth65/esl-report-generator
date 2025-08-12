@@ -107,6 +107,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | PDF Text Extraction Binary Path
+    |--------------------------------------------------------------------------
+    |
+    | Path to the pdftotext binary for PDF text extraction. If not set,
+    | the system PATH will be used to locate the binary.
+    |
+    */
+
+    'pdftotext_binary_path' => env('PDFTOTEXT_BINARY_PATH'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

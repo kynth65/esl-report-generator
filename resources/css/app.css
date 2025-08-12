@@ -145,3 +145,146 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer utilities {
+    .animate-fadeInUp {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    .animate-pulse-soft {
+        animation: pulse-soft 3s ease-in-out infinite;
+    }
+    
+    .animate-shimmer {
+        animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    .animate-bounce-gentle {
+        animation: bounce-gentle 2s ease-in-out infinite;
+    }
+    
+    .animation-delay-150 {
+        animation-delay: 150ms;
+    }
+    
+    .animation-delay-300 {
+        animation-delay: 300ms;
+    }
+    
+    .animation-delay-450 {
+        animation-delay: 450ms;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-soft {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes bounce-gentle {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* ESL Report Generation Loading States */
+.esl-generating {
+    position: relative;
+    overflow: hidden;
+}
+
+.esl-generating::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(118, 159, 205, 0.3),
+        rgba(185, 215, 234, 0.5),
+        rgba(214, 230, 242, 0.3),
+        transparent
+    );
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Notification animations */
+.notification-success {
+    animation: slideInRight 0.4s ease-out, bounce-gentle 0.6s ease-out 0.4s;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Enhanced Sidebar Active State Styling */
+[data-active="true"][data-sidebar="menu-button"] {
+    background: linear-gradient(135deg, #769fcd 0%, #b9d7ea 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(118, 159, 205, 0.3) !important;
+    border: 1px solid rgba(118, 159, 205, 0.4) !important;
+    transform: translateX(2px) !important;
+}
+
+[data-active="true"][data-sidebar="menu-button"]:hover {
+    background: linear-gradient(135deg, #5a8bb8 0%, #a5c9dd 100%) !important;
+    box-shadow: 0 4px 12px rgba(118, 159, 205, 0.4) !important;
+}
+
+/* Make active icons white and more visible */
+[data-active="true"][data-sidebar="menu-button"] svg {
+    color: white !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Enhanced hover states for non-active items */
+[data-sidebar="menu-button"]:hover:not([data-active="true"]) {
+    background-color: rgba(118, 159, 205, 0.1) !important;
+    color: #769fcd !important;
+    transform: translateX(1px);
+    transition: all 0.2s ease;
+}
+
+[data-sidebar="menu-button"]:hover:not([data-active="true"]) svg {
+    color: #769fcd !important;
+}

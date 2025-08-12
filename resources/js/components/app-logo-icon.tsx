@@ -2,12 +2,33 @@ import { SVGAttributes } from 'react';
 
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
     return (
-        <svg {...props} viewBox="0 0 40 42" xmlns="http://www.w3.org/2000/svg">
-            <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M17.2 5.63325L8.6 0.855469L0 5.63325V32.1434L16.2 41.1434L32.4 32.1434V23.699L40 19.4767V9.85547L31.4 5.07769L22.8 9.85547V18.2999L17.2 21.411V5.63325ZM38 18.2999L32.4 21.411V15.2545L38 12.1434V18.2999ZM36.9409 10.4439L31.4 13.5221L25.8591 10.4439L31.4 7.36561L36.9409 10.4439ZM24.8 18.2999V12.1434L30.4 15.2545V21.411L24.8 18.2999ZM23.8 20.0323L29.3409 23.1105L16.2 30.411L10.6591 27.3328L23.8 20.0323ZM7.6 27.9212L15.2 32.1434V38.2999L2 30.9666V7.92116L7.6 11.0323V27.9212ZM8.6 9.29991L3.05913 6.22165L8.6 3.14339L14.1409 6.22165L8.6 9.29991ZM30.4 24.8101L17.2 32.1434V38.2999L30.4 30.9666V24.8101ZM9.6 11.0323L15.2 7.92117V22.5221L9.6 25.6333V11.0323Z"
-            />
+        <svg {...props} viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="eslGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#769fcd" />
+                    <stop offset="50%" stopColor="#b9d7ea" />
+                    <stop offset="100%" stopColor="#d6e6f2" />
+                </linearGradient>
+            </defs>
+            
+            {/* Book base */}
+            <rect x="4" y="8" width="20" height="16" rx="2" fill="url(#eslGradient)" />
+            <rect x="4" y="8" width="20" height="3" rx="2" fill="#769fcd" />
+            
+            {/* Pages */}
+            <line x1="8" y1="14" x2="20" y2="14" stroke="white" strokeWidth="1.5" opacity="0.8" />
+            <line x1="8" y1="17" x2="18" y2="17" stroke="white" strokeWidth="1.5" opacity="0.8" />
+            <line x1="8" y1="20" x2="16" y2="20" stroke="white" strokeWidth="1.5" opacity="0.8" />
+            
+            {/* Globe/World icon overlay */}
+            <circle cx="24" cy="12" r="6" fill="#769fcd" stroke="white" strokeWidth="1.5" />
+            <path d="M20 12 C20 8, 28 8, 28 12 C28 16, 20 16, 20 12 Z" stroke="white" strokeWidth="1" fill="none" />
+            <path d="M18 12 L30 12" stroke="white" strokeWidth="1" />
+            <path d="M22 8 C22 10, 26 10, 26 8" stroke="white" strokeWidth="0.8" fill="none" />
+            <path d="M22 16 C22 14, 26 14, 26 16" stroke="white" strokeWidth="0.8" fill="none" />
+            
+            {/* Sparkle/star for learning */}
+            <path d="M6 4 L7 6 L9 5 L7 7 L6 9 L5 7 L3 5 L5 6 Z" fill="#b9d7ea" />
         </svg>
     );
 }
