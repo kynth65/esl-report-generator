@@ -359,7 +359,7 @@
                 <h4 class="highlight-title">📚 Vocabulary Learned</h4>
                 <ul class="highlight-list">
                     @foreach($report['lesson_highlights']['vocabulary_learned'] as $vocab)
-                        <li>{{ is_array($vocab) ? implode(' ', $vocab) : $vocab }}</li>
+                        <li>{{ is_array($vocab) ? implode(' - ', $vocab) : $vocab }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -371,7 +371,29 @@
                 <h4 class="highlight-title">📝 Grammar Errors Addressed</h4>
                 <ul class="highlight-list">
                     @foreach($report['lesson_highlights']['grammar_errors_addressed'] as $error)
-                        <li>{{ is_array($error) ? implode(' ', $error) : $error }}</li>
+                        <li>
+                            @php
+                                $errorText = is_array($error) ? implode(' ', $error) : $error;
+                                // Try to split by common separators to find wrong/right parts
+                                if (strpos($errorText, ' -> ') !== false) {
+                                    $parts = explode(' -> ', $errorText, 2);
+                                    $wrongPart = trim($parts[0]);
+                                    $rightPart = trim($parts[1]);
+                                } elseif (strpos($errorText, ' | ') !== false) {
+                                    $parts = explode(' | ', $errorText, 2);
+                                    $wrongPart = trim($parts[0]);
+                                    $rightPart = trim($parts[1]);
+                                } else {
+                                    $wrongPart = $errorText;
+                                    $rightPart = '';
+                                }
+                            @endphp
+                            @if(!empty($rightPart))
+                                <strong>Wrong:</strong> {{ $wrongPart }} | <strong>Right:</strong> {{ $rightPart }}
+                            @else
+                                <strong>Wrong:</strong> {{ $wrongPart }}
+                            @endif
+                        </li>
                     @endforeach
                 </ul>
             </div>
