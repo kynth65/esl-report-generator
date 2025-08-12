@@ -46,6 +46,23 @@ class PDFGenerationService
             // Generate filename
             $studentName = $reportData['student_name'] ?? 'Student';
             $date = $reportData['date'] ?? date('Y-m-d');
+            
+            // Ensure the date uses the current year (2025)
+            if (empty($date) || !strtotime($date)) {
+                $date = date('Y-m-d');
+            } else {
+                // Parse the date and ensure it uses current year
+                $parsedDate = date_parse($date);
+                if ($parsedDate && !$parsedDate['errors']) {
+                    $currentYear = date('Y');
+                    $month = str_pad($parsedDate['month'] ?: date('n'), 2, '0', STR_PAD_LEFT);
+                    $day = str_pad($parsedDate['day'] ?: date('j'), 2, '0', STR_PAD_LEFT);
+                    $date = $currentYear . '-' . $month . '-' . $day;
+                } else {
+                    $date = date('Y-m-d');
+                }
+            }
+            
             $filename = 'ESL_Daily_Report_'.str_replace([' ', '-'], '_', $studentName).'_'.str_replace('-', '_', $date).'.pdf';
 
             Log::info('PDF generated successfully', [

@@ -251,7 +251,19 @@
     <div class="header">
         <h1>Daily Progress Summary</h1>
         <div class="meta">
-            <strong>Date:</strong> {{ $report['date'] ? date('F j, Y', strtotime($report['date'])) : date('F j, Y') }}<br>
+            @php
+                $displayDate = date('F j, Y');
+                if (!empty($report['date'])) {
+                    $parsedDate = date_parse($report['date']);
+                    if ($parsedDate && !$parsedDate['errors'] && $parsedDate['month'] && $parsedDate['day']) {
+                        $currentYear = date('Y');
+                        $displayDate = date('F j, Y', mktime(0, 0, 0, $parsedDate['month'], $parsedDate['day'], $currentYear));
+                    } elseif (strtotime($report['date'])) {
+                        $displayDate = date('F j, Y', strtotime($report['date']));
+                    }
+                }
+            @endphp
+            <strong>Date:</strong> {{ $displayDate }}<br>
             <strong>Student:</strong> {{ $report['student_name'] ?? '[Student Name]' }}<br>
             <strong>Class Level:</strong> {{ $report['class_level'] ?? '[Level]' }}
         </div>
