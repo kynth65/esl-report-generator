@@ -268,16 +268,16 @@
         <div class="section-content">
             <div class="overview-grid">
                 <div class="overview-item">
-                    <strong>Lesson Focus:</strong> {{ $report['lesson_focus'] ?? '[AI-generated summary of lesson focus and topics]' }}
+                    <strong>Lesson Focus:</strong> {{ is_array($report['lesson_focus'] ?? null) ? implode(' ', $report['lesson_focus']) : ($report['lesson_focus'] ?? '[AI-generated summary of lesson focus and topics]') }}
                 </div>
                 <div class="overview-item">
-                    <strong>Student Performance:</strong> {{ $report['student_performance'] ?? '[AI analysis of engagement and comprehension]' }}
+                    <strong>Student Performance:</strong> {{ is_array($report['student_performance'] ?? null) ? implode(' ', $report['student_performance']) : ($report['student_performance'] ?? '[AI analysis of engagement and comprehension]') }}
                 </div>
                 <div class="overview-item">
-                    <strong>Key Achievements:</strong> {{ $report['key_achievements'] ?? '[Specific accomplishments during the lesson]' }}
+                    <strong>Key Achievements:</strong> {{ is_array($report['key_achievements'] ?? null) ? implode(' ', $report['key_achievements']) : ($report['key_achievements'] ?? '[Specific accomplishments during the lesson]') }}
                 </div>
                 <div class="overview-item">
-                    <strong>Areas for Improvement:</strong> {{ $report['areas_for_improvement'] ?? '[Constructive feedback areas]' }}
+                    <strong>Areas for Improvement:</strong> {{ is_array($report['areas_for_improvement'] ?? null) ? implode(' ', $report['areas_for_improvement']) : ($report['areas_for_improvement'] ?? '[Constructive feedback areas]') }}
                 </div>
             </div>
         </div>
@@ -297,7 +297,7 @@
                                     {{ $assessment['level'] }}
                                 </span>
                             </div>
-                            <div class="skill-details">{{ $assessment['details'] ?? '' }}</div>
+                            <div class="skill-details">{{ is_array($assessment['details'] ?? null) ? implode(' ', $assessment['details']) : ($assessment['details'] ?? '') }}</div>
                         </div>
                     @endforeach
                 @else
@@ -334,7 +334,7 @@
                 <ul>
                     @if(isset($report['recommendations']) && is_array($report['recommendations']))
                         @foreach($report['recommendations'] as $recommendation)
-                            <li>{{ $recommendation }}</li>
+                            <li>{{ is_array($recommendation) ? implode(' ', $recommendation) : $recommendation }}</li>
                         @endforeach
                     @else
                         <li>Focus on specific areas identified during the lesson</li>
@@ -359,9 +359,9 @@
                     @foreach($report['homework_exercises'] as $index => $exercise)
                         <div class="homework-item">
                             <div class="homework-number">{{ $index + 1 }}</div>
-                            <div class="homework-type">{{ $exercise['type'] ?? 'Exercise' }}</div>
-                            <div class="homework-description">{{ $exercise['description'] ?? 'Exercise description' }}</div>
-                            <div class="homework-time">{{ $exercise['estimated_time'] ?? '5-10 min' }}</div>
+                            <div class="homework-type">{{ is_array($exercise['type'] ?? null) ? implode(' ', $exercise['type']) : ($exercise['type'] ?? 'Exercise') }}</div>
+                            <div class="homework-description">{{ is_array($exercise['description'] ?? null) ? implode(' ', $exercise['description']) : ($exercise['description'] ?? 'Exercise description') }}</div>
+                            <div class="homework-time">{{ is_array($exercise['estimated_time'] ?? null) ? implode(' ', $exercise['estimated_time']) : ($exercise['estimated_time'] ?? '5-10 min') }}</div>
                         </div>
                     @endforeach
                 @else
