@@ -106,9 +106,59 @@ export default function DailySummarizationPage() {
         }
     };
 
-    const handleDownload = () => {
-        // Placeholder for PDF download functionality
-        alert('PDF download functionality will be implemented in Phase 2');
+    const handleDownload = async () => {
+        if (!reportData) {
+            alert('No report data available for download');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/reports/daily/download-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    report_data: reportData,
+                    metadata: {
+                        generated_at: new Date().toISOString(),
+                        user_id: 'current_user' // This would be dynamic in a real app
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to download PDF');
+            }
+
+            // Create blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Extract filename from response headers or use default
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'ESL_Daily_Report.pdf';
+            if (contentDisposition) {
+                const matches = contentDisposition.match(/filename="(.+)"/);
+                if (matches && matches[1]) {
+                    filename = matches[1];
+                }
+            }
+            
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (err: any) {
+            console.error('PDF download failed:', err);
+            alert(err.message || 'Failed to download PDF');
+        }
     };
 
     return (

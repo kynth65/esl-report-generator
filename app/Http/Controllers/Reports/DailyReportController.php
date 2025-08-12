@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Services\ReportGenerationService;
+use App\Services\PDFGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -12,10 +13,14 @@ use Illuminate\Validation\ValidationException;
 class DailyReportController extends Controller
 {
     private ReportGenerationService $reportService;
+    private PDFGenerationService $pdfService;
 
-    public function __construct(ReportGenerationService $reportService)
-    {
+    public function __construct(
+        ReportGenerationService $reportService,
+        PDFGenerationService $pdfService
+    ) {
         $this->reportService = $reportService;
+        $this->pdfService = $pdfService;
     }
 
     /**
@@ -161,6 +166,116 @@ class DailyReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'PDF parsing test failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate and download PDF for daily report
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function downloadPdf(Request $request)
+    {
+        try {
+            $request->validate([
+                'report_data' => 'required|array',
+                'metadata' => 'nullable|array'
+            ]);
+
+            $reportData = $request->input('report_data');
+            $metadata = $request->input('metadata', []);
+
+            Log::info('PDF download request received', [
+                'student_name' => $reportData['student_name'] ?? 'unknown',
+                'user_id' => auth()->id() ?? 'guest'
+            ]);
+
+            // Validate report data
+            $validation = $this->pdfService->validateReportData($reportData);
+            if (!$validation['is_valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid report data',
+                    'errors' => $validation['errors']
+                ], 400);
+            }
+
+            // Generate and return PDF download
+            return $this->pdfService->downloadDailyReportPDF($reportData, $metadata);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('PDF download failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview PDF for daily report (inline)
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function previewPdf(Request $request)
+    {
+        try {
+            $request->validate([
+                'report_data' => 'required|array',
+                'metadata' => 'nullable|array'
+            ]);
+
+            $reportData = $request->input('report_data');
+            $metadata = $request->input('metadata', []);
+
+            Log::info('PDF preview request received', [
+                'student_name' => $reportData['student_name'] ?? 'unknown',
+                'user_id' => auth()->id() ?? 'guest'
+            ]);
+
+            // Validate report data
+            $validation = $this->pdfService->validateReportData($reportData);
+            if (!$validation['is_valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid report data',
+                    'errors' => $validation['errors']
+                ], 400);
+            }
+
+            // Generate and return PDF for preview
+            return $this->pdfService->previewDailyReportPDF($reportData, $metadata);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('PDF preview failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to preview PDF: ' . $e->getMessage()
             ], 500);
         }
     }
