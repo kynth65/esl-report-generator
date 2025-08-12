@@ -105,75 +105,6 @@
             padding: 2px 0;
         }
         
-        .skills-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 12px;
-        }
-        
-        .skill-item {
-            display: table-row;
-            margin-bottom: 6px;
-        }
-        
-        .skill-name, .skill-level, .skill-details {
-            display: table-cell;
-            padding: 6px 8px;
-            border-bottom: 1px solid #e0e0e0;
-            vertical-align: top;
-        }
-        
-        .skill-name {
-            font-weight: bold;
-            width: 25%;
-            background: #f9f9f9;
-        }
-        
-        .skill-level {
-            width: 20%;
-            text-align: center;
-        }
-        
-        .skill-details {
-            width: 55%;
-            font-size: 10px;
-        }
-        
-        .level-excellent {
-            background: #d4edda;
-            color: #155724;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-        
-        .level-good {
-            background: #d1ecf1;
-            color: #0c5460;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-        
-        .level-progressing {
-            background: #cce5ff;
-            color: #004085;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-        
-        .level-needs-practice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-        }
         
         .recommendations {
             background: linear-gradient(135deg, #e8f4f8 0%, #d6e6f2 100%);
@@ -222,7 +153,7 @@
         
         .part-title {
             background: linear-gradient(135deg, #769fcd 0%, #5a7ba1 100%);
-            color: white;
+            color: black;
             font-size: 13px;
             font-weight: bold;
             padding: 8px 12px;
@@ -415,48 +346,6 @@
     </div>
     @endif
 
-    <!-- Skills Assessment -->
-    <div class="section">
-        <div class="section-title">📊 Skills Assessment</div>
-        <div class="section-content">
-            <div class="skills-grid">
-                @if(isset($report['skills_assessment']) && is_array($report['skills_assessment']))
-                    @foreach($report['skills_assessment'] as $skillKey => $assessment)
-                        <div class="skill-item">
-                            <div class="skill-name">{{ ucwords(str_replace('_', ' & ', $skillKey)) }}</div>
-                            <div class="skill-level">
-                                <span class="level-{{ strtolower(str_replace(' ', '-', $assessment['level'])) }}">
-                                    {{ $assessment['level'] }}
-                                </span>
-                            </div>
-                            <div class="skill-details">{{ is_array($assessment['details'] ?? null) ? implode(' ', $assessment['details']) : ($assessment['details'] ?? '') }}</div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="skill-item">
-                        <div class="skill-name">Speaking & Pronunciation</div>
-                        <div class="skill-level"><span class="level-progressing">Progressing</span></div>
-                        <div class="skill-details">Sample assessment details</div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">Listening Comprehension</div>
-                        <div class="skill-level"><span class="level-good">Good</span></div>
-                        <div class="skill-details">Sample assessment details</div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">Reading & Vocabulary</div>
-                        <div class="skill-level"><span class="level-excellent">Excellent</span></div>
-                        <div class="skill-details">Sample assessment details</div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">Grammar & Writing</div>
-                        <div class="skill-level"><span class="level-needs-practice">Needs Practice</span></div>
-                        <div class="skill-details">Sample assessment details</div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
 
     <!-- Recommendations -->
     <div class="section no-break">
