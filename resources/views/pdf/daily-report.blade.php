@@ -350,7 +350,7 @@
     <!-- Lesson Highlights -->
     @if(isset($report['lesson_highlights']) && is_array($report['lesson_highlights']))
     <div class="section">
-        <div class="section-title">✨ Lesson Highlights</div>
+        <div class="section-title">📝 Lesson Highlights</div>
         <div class="section-content">
             
             <!-- Vocabulary Learned -->

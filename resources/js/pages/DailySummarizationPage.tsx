@@ -82,13 +82,16 @@ export default function DailySummarizationPage() {
                 formData.append('notes', notes);
             }
 
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
             // Make API call to generate report
             const response = await fetch('/api/reports/daily/generate', {
                 method: 'POST',
-                body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrfToken || '',
                 },
+                body: formData,
             });
 
             const result = await response.json();
@@ -124,11 +127,14 @@ export default function DailySummarizationPage() {
         }
 
         try {
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
             const response = await fetch('/api/reports/daily/download-pdf', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrfToken || '',
                 },
                 body: JSON.stringify({
                     report_data: reportData,

@@ -95,7 +95,12 @@ export function DailyReportPreview({ data }: DailyReportPreviewProps) {
                                         {data.lesson_highlights.vocabulary_learned.map((vocab, index) => (
                                             <li key={index} className="flex items-start">
                                                 <span className="text-[#769fcd] mr-2">•</span>
-                                                <span>{vocab}</span>
+                                                <span>
+                                                    {typeof vocab === 'object' && vocab !== null ? 
+                                                        `${vocab.word}: ${vocab.definition}` : 
+                                                        vocab
+                                                    }
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
@@ -112,7 +117,12 @@ export function DailyReportPreview({ data }: DailyReportPreviewProps) {
                                         {data.lesson_highlights.grammar_errors_addressed.map((error, index) => (
                                             <li key={index} className="flex items-start">
                                                 <span className="text-[#769fcd] mr-2">•</span>
-                                                <span>{error}</span>
+                                                <span>
+                                                    {typeof error === 'object' && error !== null ? 
+                                                        `${error.word}: ${error.definition}` : 
+                                                        error
+                                                    }
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
@@ -129,7 +139,12 @@ export function DailyReportPreview({ data }: DailyReportPreviewProps) {
                                         {data.lesson_highlights.pronunciation_challenges.map((challenge, index) => (
                                             <li key={index} className="flex items-start">
                                                 <span className="text-[#769fcd] mr-2">•</span>
-                                                <span>{challenge}</span>
+                                                <span>
+                                                    {typeof challenge === 'object' && challenge !== null ? 
+                                                        `${challenge.word}: ${challenge.definition}` : 
+                                                        challenge
+                                                    }
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>

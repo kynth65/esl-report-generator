@@ -28,7 +28,9 @@ class OpenAIService
 
     $this->client = new Client([
       'base_uri' => $this->baseUrl,
-      'timeout' => config('openai.timeout', 30),
+      'timeout' => config('openai.timeout', 60),
+      'connect_timeout' => config('openai.connect_timeout', 30),
+      'read_timeout' => config('openai.read_timeout', 180),
       'headers' => [
         'Authorization' => 'Bearer ' . $this->apiKey,
         'Content-Type' => 'application/json',
@@ -96,6 +98,14 @@ class OpenAIService
         'error' => $e->getMessage(),
         'code' => $e->getCode()
       ]);
+
+      // Provide more specific error messages for common timeout issues
+      if (str_contains($e->getMessage(), 'cURL error 28') || str_contains($e->getMessage(), 'Operation timed out')) {
+        return [
+          'success' => false,
+          'error' => 'Request timed out. This can happen with large files or complex requests. Please try again with a smaller file or simpler content.'
+        ];
+      }
 
       return [
         'success' => false,
@@ -166,6 +176,14 @@ class OpenAIService
         'error' => $e->getMessage(),
         'code' => $e->getCode()
       ]);
+
+      // Provide more specific error messages for common timeout issues
+      if (str_contains($e->getMessage(), 'cURL error 28') || str_contains($e->getMessage(), 'Operation timed out')) {
+        return [
+          'success' => false,
+          'error' => 'Request timed out. This can happen with large files or complex requests. Please try again with a smaller file or simpler content.'
+        ];
+      }
 
       return [
         'success' => false,

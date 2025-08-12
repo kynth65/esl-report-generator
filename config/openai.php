@@ -19,6 +19,10 @@ return [
     'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
 
     'timeout' => env('OPENAI_TIMEOUT', 60),
+    
+    'connect_timeout' => env('OPENAI_CONNECT_TIMEOUT', 30),
+    
+    'read_timeout' => env('OPENAI_READ_TIMEOUT', 180),
 
     'max_tokens' => env('OPENAI_MAX_TOKENS', 4000),
 
