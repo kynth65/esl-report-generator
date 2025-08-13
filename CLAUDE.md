@@ -101,3 +101,47 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 - Settings pages for profile and password management included
 - All report generation happens server-side with client-side preview components
 - PDF uploads are processed and stored temporarily during report generation
+
+## Key Implementation Details
+
+### PDF Generation & Date Handling
+- **PDF Templates**: Located in `resources/views/pdf/daily-report.blade.php`
+- **Date Formatting**: All PDF dates now use current year (2025) to prevent defaulting to 2023
+- **Filename Generation**: PDF filenames automatically use current year format (e.g., `ESL_Daily_Report_Student_2025_08_12.pdf`)
+- **Date Processing**: Both display dates and filenames parse incomplete dates and default to current year
+
+### Report Structure & Data Flow
+- **Daily Reports**: 
+  - Upload PDF → Parse content → Generate AI summary → Create downloadable PDF report
+  - Contains: Progress Overview, Lesson Highlights, Vocabulary/Grammar/Pronunciation sections, Homework exercises
+- **Homework Structure**: Uses new format with Multiple Choice Questions (MCQ) and Sentence Construction exercises
+- **Grammar Errors**: Format supports "Wrong: X | Right: Y" pattern for corrections display
+
+### AI Integration Details
+- **OpenAI Service**: `app/Services/OpenAIService.php` - Timeout set to 60 seconds
+- **Report Generation**: `app/Services/ReportGenerationService.php` - Handles AI prompt generation and response processing
+- **Content Processing**: AI analyzes uploaded PDF content to generate personalized lesson summaries and homework
+
+### PDF Processing Pipeline
+1. **Upload**: `PDFParsingService.php` validates and extracts text from uploaded PDFs
+2. **AI Analysis**: `ReportGenerationService.php` sends content to OpenAI for analysis
+3. **PDF Generation**: `PDFGenerationService.php` creates formatted report with proper styling
+4. **Download**: Response includes proper headers for file download with current year in filename
+
+### UI/UX Components
+- **File Upload**: `resources/js/components/common/FileUploadBox.tsx` - Drag & drop PDF upload
+- **Preview System**: `resources/js/components/common/PreviewSection.tsx` - Shows report preview before download
+- **Sound Notifications**: `resources/js/hooks/useNotificationSound.ts` - Audio feedback for user actions
+- **Theme Support**: Dark/light mode toggle with proper PDF styling
+
+### Common Issues & Solutions
+- **Date Problems**: Always check PDF date parsing in `PDFGenerationService.php` - dates without years default to 2023
+- **PDF Styling**: Homework section text color should be black (not white) for visibility
+- **Grammar Display**: Use "Wrong: X | Right: Y" format for proper grammar error corrections
+- **File Processing**: Large PDFs may timeout - OpenAI timeout is set to 60 seconds
+
+### Testing & Quality Assurance
+- **PHP Tests**: Use `php artisan test` or `composer test` 
+- **Code Style**: Run `npm run lint` for TypeScript/React, Laravel Pint handles PHP formatting
+- **Type Checking**: Use `npm run types` to verify TypeScript types
+- **PDF Validation**: Always test PDF generation with various date formats to ensure current year usage
