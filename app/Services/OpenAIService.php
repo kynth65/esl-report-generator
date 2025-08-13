@@ -448,51 +448,51 @@ Please create a detailed monthly progress report in JSON format with the followi
   },
   \"skills_progression\": {
     \"speaking_pronunciation\": {
-      \"initial_level\": \"[Level at start of reporting period]\",
-      \"current_level\": \"[Current level showing progression]\",
-      \"improvement_percentage\": [Numeric percentage of improvement, e.g., 15],
+      \"initial_level\": \"[Level at start of reporting period - assess from earliest reports]\",
+      \"current_level\": \"[Current level from most recent reports - should show realistic progression]\",
+      \"improvement_percentage\": [Calculate based on measurable indicators: frequency of speaking participation, pronunciation accuracy, confidence level, fluency improvements. Use concrete evidence from daily reports. Range: 0-50% realistic for monthly period],
       \"highlights\": [
-        \"[Specific speaking improvement observed]\",
-        \"[Pronunciation achievement or progress]\",
-        \"[Confidence or fluency development]\"
+        \"[Specific speaking improvement observed with quantifiable evidence]\",
+        \"[Pronunciation achievement with specific examples from reports]\",
+        \"[Confidence or fluency development with measurable indicators]\"
       ]
     },
     \"listening_comprehension\": {
-      \"initial_level\": \"[Level at start of reporting period]\",
-      \"current_level\": \"[Current level showing progression]\",
-      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"initial_level\": \"[Level at start of reporting period - assess from earliest reports]\",
+      \"current_level\": \"[Current level from most recent reports - should show realistic progression]\",
+      \"improvement_percentage\": [Calculate based on: comprehension accuracy in exercises, response time to questions, ability to follow complex instructions, understanding of varied accents/speeds. Use evidence from reports. Range: 0-40% realistic for monthly period],
       \"highlights\": [
-        \"[Listening skill improvement]\",
-        \"[Comprehension achievement]\",
-        \"[Audio processing development]\"
+        \"[Listening skill improvement with specific examples]\",
+        \"[Comprehension achievement with quantified progress]\",
+        \"[Audio processing development with measurable evidence]\"
       ]
     },
     \"reading_vocabulary\": {
-      \"initial_level\": \"[Level at start of reporting period]\",
-      \"current_level\": \"[Current level showing progression]\",
-      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"initial_level\": \"[Level at start of reporting period - assess from earliest reports]\",
+      \"current_level\": \"[Current level from most recent reports - should show realistic progression]\",
+      \"improvement_percentage\": [Calculate based on: vocabulary retention rate, reading speed/fluency, comprehension of complex texts, new words learned and retained. Count vocabulary words mentioned across reports. Range: 0-35% realistic for monthly period],
       \"highlights\": [
-        \"[Reading skill development]\",
-        \"[Vocabulary expansion achievement]\",
-        \"[Text comprehension progress]\"
+        \"[Reading skill development with specific metrics]\",
+        \"[Vocabulary expansion achievement - count new words learned]\",
+        \"[Text comprehension progress with measurable improvements]\"
       ]
     },
     \"grammar_writing\": {
-      \"initial_level\": \"[Level at start of reporting period]\",
-      \"current_level\": \"[Current level showing progression]\",
-      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"initial_level\": \"[Level at start of reporting period - assess from earliest reports]\",
+      \"current_level\": \"[Current level from most recent reports - should show realistic progression]\",
+      \"improvement_percentage\": [Calculate based on: grammar accuracy in exercises, error reduction patterns, correct usage of new structures, writing complexity improvements. Track specific errors mentioned in reports. Range: 0-45% realistic for monthly period],
       \"highlights\": [
-        \"[Grammar concept mastery]\",
-        \"[Writing skill improvement]\",
-        \"[Accuracy development]\"
+        \"[Grammar concept mastery with specific structures learned]\",
+        \"[Writing skill improvement with measurable accuracy gains]\",
+        \"[Error reduction - track specific mistakes from early vs. recent reports]\"
       ]
     }
   },
   \"consistency_metrics\": {
-    \"attendance_rate\": [Percentage based on sessions completed],
-    \"engagement_level\": [Percentage reflecting participation and effort],
-    \"homework_completion\": [Percentage of homework assignments completed],
-    \"participation_score\": [Percentage reflecting class participation quality]
+    \"attendance_rate\": [Calculate: (Total sessions in reports / Expected sessions based on period) × 100. If analyzing 8 reports for a month, assume 100% attendance since all sessions are represented],
+    \"engagement_level\": [Calculate based on participation indicators: active responses, question asking, volunteer participation, attention markers. Count positive engagement mentions vs. total sessions. Range: 60-95%],
+    \"homework_completion\": [Calculate: Count homework completion mentions vs. homework assignments given across reports. Look for \"completed homework,\" \"did exercises,\" vs. \"homework incomplete.\" Provide realistic percentage based on evidence],
+    \"participation_score\": [Calculate: Quality participation indicators (volunteering answers, asking questions, initiating conversation, collaborative work) vs. total sessions. Base on actual participation descriptions in reports. Range: 50-90%]
   },
   \"recommendations\": [
     \"[Specific recommendation for continued learning]\",
@@ -516,6 +516,38 @@ IMPORTANT ANALYSIS GUIDELINES:
 - Do NOT include homework exercises, vocabulary lists, or grammar corrections (this is a progress analysis, not a lesson plan)
 - Focus on the student's DEVELOPMENT JOURNEY rather than specific lesson content
 - Work effectively with any number of reports provided - even 2-3 reports can yield valuable insights about consistency, engagement patterns, and learning preferences
+
+PRECISE PERCENTAGE CALCULATION METHODOLOGY:
+For improvement percentages, follow this systematic approach:
+
+1. BASELINE ASSESSMENT (from earliest reports):
+   - Count specific skill indicators (vocabulary words, grammar errors, participation instances)
+   - Note level descriptors and teacher observations about initial performance
+   - Identify starting competency markers
+
+2. CURRENT LEVEL ASSESSMENT (from recent reports):
+   - Count same skill indicators to measure growth
+   - Compare error frequencies between early and recent reports
+   - Track complexity increases in tasks/exercises
+
+3. QUANTITATIVE CALCULATION EXAMPLES:
+   - Speaking: If early reports show 3 speaking attempts per lesson → recent reports show 7 attempts = (7-3)/3 × 100 = 133% increase, cap at 35% for realism
+   - Vocabulary: If early reports mention 5 new words learned → recent reports mention 12 new words = (12-5)/5 × 100 = 140% increase, cap at 25% for monthly realism  
+   - Grammar: If early reports show 8 errors per exercise → recent reports show 3 errors = (8-3)/8 × 100 = 62.5% error reduction = 30% improvement
+   - Listening: Track comprehension accuracy from exercises, response appropriateness, follow-through on instructions
+
+4. REALISTIC CONSTRAINTS:
+   - Monthly improvements should typically range 5-40% to maintain credibility
+   - Cross-reference percentages with actual evidence from reports
+   - Higher percentages (30-40%) require strong supporting evidence
+   - Lower percentages (5-15%) are acceptable for steady, incremental progress
+   - Zero or negative percentages are acceptable if no clear improvement is evident
+
+5. EVIDENCE-BASED VALIDATION:
+   - Each percentage MUST be supported by specific examples from the daily reports
+   - Count quantifiable metrics where possible (vocabulary learned, errors reduced, participation frequency)
+   - Reference teacher observations about confidence, fluency, or comprehension changes
+   - Use comparative language from reports (\"improved,\" \"better,\" \"more confident\")
 
 The report should demonstrate clear understanding of the student's learning patterns across the available reporting period and provide valuable insights for continued instruction, regardless of whether you're analyzing 2 reports or 15+ reports.";
     }
