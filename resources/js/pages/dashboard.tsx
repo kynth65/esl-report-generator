@@ -14,19 +14,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="ESL Report Generator" />
-            <div className="min-h-screen bg-gradient-to-br from-[#f7fbfc] via-white to-[#f7fbfc] p-3 sm:p-4 md:p-6 lg:p-8">
+            <Head title="SUMMAFLOW - ESL Report Generator" />
+            <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-white to-[#f8fafc] p-3 sm:p-4 md:p-6 lg:p-8">
                 {/* Header Section */}
-                <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-3 sm:space-y-4">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 tracking-tight px-2">
-                        ESL Report Generator
-                    </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4">
-                        Multi-Level Summarization System for ESL Teachers
-                    </p>
-                    <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto px-4 leading-relaxed">
+                <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-4 sm:space-y-6">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#2563eb] to-[#60a5fa] bg-clip-text text-transparent tracking-tight px-2">
+                            SUMMAFLOW
+                        </h1>
+                        <p className="text-base sm:text-lg md:text-xl text-[#2563eb] font-medium max-w-3xl mx-auto px-4">
+                            ESL Report Generator
+                        </p>
+                    </div>
+                    <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
                         Generate comprehensive progress reports, monthly summaries, and performance comparisons 
-                        to track your students' English learning journey.
+                        to track your students' English learning journey with AI-powered insights.
                     </p>
                 </div>
 
@@ -61,9 +63,9 @@ export default function Dashboard() {
 
                 {/* Footer Info */}
                 <div className="mt-12 sm:mt-14 md:mt-16 text-center px-4">
-                    <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-white/80 backdrop-blur-sm rounded-full border-2 border-[#d6e6f2] shadow-sm hover:shadow-md transition-all duration-200">
-                        <span className="text-xs sm:text-sm text-gray-500 text-center">
-                            Phase 1: UI-only version • AI integration coming soon
+                    <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-white/80 backdrop-blur-sm rounded-full border border-[#2563eb]/20 shadow-sm hover:shadow-md transition-all duration-200">
+                        <span className="text-xs sm:text-sm text-gray-600 text-center">
+                            Powered by AI • Clean & Professional Reports
                         </span>
                     </div>
                 </div>

@@ -9,7 +9,7 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -60,80 +60,94 @@
 }
 
 :root {
-    /* ESL Report Generator Custom Colors */
-    --esl-bg-light: #f7fbfc;
-    --esl-section: #d6e6f2;
-    --esl-highlight: #b9d7ea;
-    --esl-primary: #769fcd;
+    /* SUMMAFLOW Brand Colors */
+    --brand-primary: #2563eb;      /* Deep blue */
+    --brand-secondary: #60a5fa;    /* Light blue */
+    --brand-accent: #10b981;       /* Green */
+    --brand-background: #ffffff;   /* Clean white */
+    --brand-surface: #f8fafc;      /* Light gray */
     
-    --background: oklch(1 0 0);
+    /* ESL Report Generator Legacy Colors (for gradual migration) */
+    --esl-bg-light: var(--brand-surface);
+    --esl-section: #e2e8f0;
+    --esl-highlight: var(--brand-secondary);
+    --esl-primary: var(--brand-primary);
+    
+    --background: var(--brand-background);
     --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
+    --card: var(--brand-background);
     --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
+    --popover: var(--brand-background);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    --primary: var(--brand-primary);
     --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
+    --secondary: var(--brand-surface);
     --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
+    --muted: var(--brand-surface);
     --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --accent: var(--brand-accent);
+    --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
+    --ring: var(--brand-primary);
+    --chart-1: var(--brand-primary);
+    --chart-2: var(--brand-secondary);
+    --chart-3: var(--brand-accent);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
+    --radius: 0.5rem;
+    --sidebar: var(--brand-background);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary: var(--brand-primary);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent: var(--brand-surface);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --sidebar-ring: var(--brand-primary);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
+    /* SUMMAFLOW Dark Theme Colors */
+    --brand-background: #0f172a;
+    --brand-surface: #1e293b;
+    --brand-primary: #3b82f6;      /* Slightly lighter blue for dark mode */
+    --brand-secondary: #60a5fa;    /* Keep same light blue */
+    --brand-accent: #34d399;       /* Slightly lighter green for better contrast */
+    
+    --background: var(--brand-background);
     --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
+    --card: var(--brand-background);
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
+    --popover: var(--brand-background);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
+    --primary: var(--brand-primary);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: var(--brand-surface);
     --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
+    --muted: var(--brand-surface);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --accent: var(--brand-accent);
+    --accent-foreground: oklch(0.145 0 0);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
+    --ring: var(--brand-primary);
+    --chart-1: var(--brand-primary);
+    --chart-2: var(--brand-secondary);
+    --chart-3: var(--brand-accent);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
+    --sidebar: var(--brand-background);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary: var(--brand-primary);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent: var(--brand-surface);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --sidebar-ring: var(--brand-primary);
 }
 
 @layer base {
@@ -216,7 +230,7 @@
     }
 }
 
-/* ESL Report Generation Loading States */
+/* SUMMAFLOW Report Generation Loading States */
 .esl-generating {
     position: relative;
     overflow: hidden;
@@ -232,9 +246,9 @@
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(118, 159, 205, 0.3),
-        rgba(185, 215, 234, 0.5),
-        rgba(214, 230, 242, 0.3),
+        rgba(37, 99, 235, 0.3),
+        rgba(96, 165, 250, 0.5),
+        rgba(16, 185, 129, 0.3),
         transparent
     );
     animation: shimmer 2s ease-in-out infinite;
@@ -256,19 +270,19 @@
     }
 }
 
-/* Enhanced Sidebar Active State Styling */
+/* Enhanced Sidebar Active State Styling - SUMMAFLOW */
 [data-active="true"][data-sidebar="menu-button"] {
-    background: linear-gradient(135deg, #769fcd 0%, #b9d7ea 100%) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%) !important;
     color: white !important;
     font-weight: 600 !important;
-    box-shadow: 0 2px 8px rgba(118, 159, 205, 0.3) !important;
-    border: 1px solid rgba(118, 159, 205, 0.4) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
+    border: 1px solid rgba(37, 99, 235, 0.4) !important;
     transform: translateX(2px) !important;
 }
 
 [data-active="true"][data-sidebar="menu-button"]:hover {
-    background: linear-gradient(135deg, #5a8bb8 0%, #a5c9dd 100%) !important;
-    box-shadow: 0 4px 12px rgba(118, 159, 205, 0.4) !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
 }
 
 /* Make active icons white and more visible */
@@ -277,14 +291,14 @@
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
-/* Enhanced hover states for non-active items */
+/* Enhanced hover states for non-active items - SUMMAFLOW */
 [data-sidebar="menu-button"]:hover:not([data-active="true"]) {
-    background-color: rgba(118, 159, 205, 0.1) !important;
-    color: #769fcd !important;
+    background-color: rgba(37, 99, 235, 0.1) !important;
+    color: #2563eb !important;
     transform: translateX(1px);
     transition: all 0.2s ease;
 }
 
 [data-sidebar="menu-button"]:hover:not([data-active="true"]) svg {
-    color: #769fcd !important;
+    color: #2563eb !important;
 }
