@@ -26,9 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('monthly-comparison');
 });
 
-// API Routes for Daily Reports - using Route::middleware for more explicit control
+// API Routes for Reports - using Route::middleware for more explicit control
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('api/reports')->name('api.reports.')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+        // Daily Report Routes
         Route::post('daily/generate', [App\Http\Controllers\Reports\DailyReportController::class, 'generate'])
             ->name('daily.generate');
         Route::get('daily/sample', [App\Http\Controllers\Reports\DailyReportController::class, 'sample'])
@@ -39,6 +40,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('daily.download-pdf');
         Route::post('daily/preview-pdf', [App\Http\Controllers\Reports\DailyReportController::class, 'previewPdf'])
             ->name('daily.preview-pdf');
+
+        // Monthly Report Routes
+        Route::post('monthly/generate', [App\Http\Controllers\Reports\MonthlyReportController::class, 'generate'])
+            ->name('monthly.generate');
+        Route::post('monthly/download-pdf', [App\Http\Controllers\Reports\MonthlyReportController::class, 'downloadPdf'])
+            ->name('monthly.download-pdf');
+        Route::post('monthly/preview-pdf', [App\Http\Controllers\Reports\MonthlyReportController::class, 'previewPdf'])
+            ->name('monthly.preview-pdf');
     });
 });
 

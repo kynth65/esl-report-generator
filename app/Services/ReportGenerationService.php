@@ -94,6 +94,96 @@ class ReportGenerationService
     }
 
     /**
+     * Generate a monthly report from multiple uploaded PDFs and notes
+     */
+    public function generateMonthlyReport(array $pdfFiles, string $additionalNotes = ''): array
+    {
+        try {
+            // Step 1: Extract text from all PDFs
+            Log::info('Starting monthly report generation', [
+                'file_count' => count($pdfFiles),
+                'filenames' => array_map(fn($file) => $file->getClientOriginalName(), $pdfFiles),
+            ]);
+
+            $extractedTexts = [];
+            $extractionMetadata = [];
+
+            foreach ($pdfFiles as $index => $pdfFile) {
+                Log::info("Extracting text from PDF " . ($index + 1), [
+                    'filename' => $pdfFile->getClientOriginalName(),
+                ]);
+
+                $extractionResult = $this->pdfService->extractText($pdfFile);
+
+                if (! $extractionResult['success']) {
+                    return [
+                        'success' => false,
+                        'error' => 'PDF text extraction failed for file "'.$pdfFile->getClientOriginalName().'": '.$extractionResult['error'],
+                        'stage' => 'pdf_extraction',
+                    ];
+                }
+
+                $extractedTexts[] = [
+                    'filename' => $pdfFile->getClientOriginalName(),
+                    'text' => $extractionResult['text'],
+                    'metadata' => $extractionResult['metadata'],
+                ];
+
+                $extractionMetadata[] = $extractionResult['metadata'];
+            }
+
+            // Step 2: Generate AI monthly report from all extracted texts
+            Log::info('Starting AI monthly report generation', [
+                'total_files' => count($extractedTexts),
+                'total_text_length' => array_sum(array_map(fn($item) => strlen($item['text']), $extractedTexts)),
+            ]);
+
+            $aiResult = $this->openAIService->generateMonthlyReport($extractedTexts, $additionalNotes);
+
+            if (! $aiResult['success']) {
+                return [
+                    'success' => false,
+                    'error' => $aiResult['error'],
+                    'stage' => 'ai_generation',
+                ];
+            }
+
+            // Step 3: Prepare final response
+            $response = [
+                'success' => true,
+                'report' => $aiResult['report'],
+                'metadata' => [
+                    'processing_time' => microtime(true),
+                    'pdf_metadata' => $extractionMetadata,
+                    'file_count' => count($pdfFiles),
+                    'ai_usage' => $aiResult['usage'] ?? null,
+                    'processing_method' => 'multi_pdf_analysis',
+                ],
+            ];
+
+            Log::info('Monthly report generated successfully', [
+                'file_count' => count($pdfFiles),
+                'period' => $aiResult['report']['period'] ?? 'unknown',
+            ]);
+
+            return $response;
+
+        } catch (Exception $e) {
+            Log::error('Monthly report generation failed', [
+                'file_count' => count($pdfFiles),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => 'Monthly report generation failed: '.$e->getMessage(),
+                'stage' => 'general_error',
+            ];
+        }
+    }
+
+    /**
      * Get a sample report structure for testing
      */
     public function getSampleReport(): array

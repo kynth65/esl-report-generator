@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { FileUploadBox } from '@/components/common/FileUploadBox';
@@ -8,7 +8,7 @@ import { MonthlyReportPreview } from '@/components/monthly/MonthlyReportPreview'
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -22,13 +22,71 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface MonthlyReportData {
+    period: string;
+    total_sessions: number;
+    overall_progress: {
+        summary: string;
+        achievements: string[];
+        improvements: string[];
+        focus_areas: string[];
+    };
+    skills_progression: {
+        [key: string]: {
+            initial_level: string;
+            current_level: string;
+            improvement_percentage: number;
+            highlights: string[];
+        };
+    };
+    consistency_metrics: {
+        attendance_rate: number;
+        engagement_level: number;
+        homework_completion: number;
+        participation_score: number;
+    };
+    recommendations: string[];
+    next_month_goals: string[];
+}
+
 export default function MonthlySummarizationPage() {
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [notes, setNotes] = useState('');
-    const [selectedStudent, setSelectedStudent] = useState('');
-    const [selectedMonth, setSelectedMonth] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [reportData, setReportData] = useState<MonthlyReportData | null>(null);
+    const [error, setError] = useState<string>('');
+    const [generationProgress, setGenerationProgress] = useState<string>('');
+    const { playSound } = useNotificationSound();
+
+    // Progress tracking for generation
+    useEffect(() => {
+        let progressInterval: NodeJS.Timeout;
+        
+        if (isGenerating) {
+            const progressSteps = [
+                'Processing uploaded daily reports...',
+                'Analyzing student progress patterns...',
+                'Generating monthly insights...',
+                'Creating skills progression analysis...',
+                'Finalizing comprehensive summary...'
+            ];
+            
+            let currentStep = 0;
+            setGenerationProgress(progressSteps[0]);
+            
+            progressInterval = setInterval(() => {
+                currentStep = (currentStep + 1) % progressSteps.length;
+                setGenerationProgress(progressSteps[currentStep]);
+            }, 4000);
+        }
+        
+        return () => {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        };
+    }, [isGenerating]);
 
     const handleFileUpload = (files: File[]) => {
         setUploadedFiles(files);
@@ -36,40 +94,123 @@ export default function MonthlySummarizationPage() {
 
     const handleGenerateReport = async () => {
         if (uploadedFiles.length === 0) {
-            alert('Please upload at least one lesson report or data file.');
+            alert('Please upload at least one daily report PDF.');
             return;
         }
 
         setIsGenerating(true);
-        
-        // Simulate AI processing time
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        setIsGenerating(false);
-        setShowPreview(true);
-        
-        // Scroll to preview section
-        setTimeout(() => {
-            document.getElementById('preview-section')?.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+        setError('');
+
+        try {
+            // Create FormData for multiple file upload
+            const formData = new FormData();
+            uploadedFiles.forEach((file, index) => {
+                formData.append(`pdf_files[${index}]`, file);
             });
-        }, 100);
+            if (notes.trim()) {
+                formData.append('notes', notes);
+            }
+
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            // Make API call to generate monthly report
+            const response = await fetch('/api/reports/monthly/generate', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken || '',
+                },
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to generate monthly report');
+            }
+
+            // Set the report data
+            setReportData(result.data.report);
+            setShowPreview(true);
+            
+            // Play success notification sound
+            playSound('success');
+            
+            // Scroll to preview section
+            setTimeout(() => {
+                document.getElementById('preview-section')?.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+
+        } catch (err: any) {
+            console.error('Monthly report generation failed:', err);
+            setError(err.message || 'An unexpected error occurred while generating the monthly report.');
+            playSound('error');
+        } finally {
+            setIsGenerating(false);
+            setGenerationProgress('');
+        }
     };
 
-    const handleDownload = () => {
-        // Placeholder for PDF download functionality
-        alert('PDF download functionality will be implemented in Phase 2');
-    };
+    const handleDownload = async () => {
+        if (!reportData) {
+            alert('No report data available for download');
+            return;
+        }
 
-    const currentDate = new Date();
-    const months = Array.from({ length: 12 }, (_, i) => {
-        const date = new Date(currentDate.getFullYear(), i, 1);
-        return {
-            value: date.toISOString().slice(0, 7),
-            label: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-        };
-    });
+        try {
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            const response = await fetch('/api/reports/monthly/download-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                },
+                body: JSON.stringify({
+                    report_data: reportData,
+                    metadata: {
+                        generated_at: new Date().toISOString(),
+                        user_id: 'current_user'
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to download PDF');
+            }
+
+            // Create blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Extract filename from response headers or use default
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'ESL_Monthly_Report.pdf';
+            if (contentDisposition) {
+                const matches = contentDisposition.match(/filename="(.+)"/);
+                if (matches && matches[1]) {
+                    filename = matches[1];
+                }
+            }
+            
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (err: any) {
+            console.error('PDF download failed:', err);
+            alert(err.message || 'Failed to download PDF');
+        }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -91,76 +232,28 @@ export default function MonthlySummarizationPage() {
                             </h1>
                         </div>
                         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                            Generate comprehensive monthly overviews with trends, achievements, 
-                            and focus areas for continued growth
+                            Upload multiple daily report PDFs to generate comprehensive monthly progress analysis 
+                            with insights, achievements, and learning trends
                         </p>
                     </div>
-
-                    {/* Configuration Section */}
-                    <Card className="border-[#d6e6f2] bg-gradient-to-r from-[#f7fbfc] to-white">
-                        <CardContent className="p-6 space-y-6">
-                            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-                                <Icon name="Settings" className="h-5 w-5 mr-2 text-[#769fcd]" />
-                                Report Configuration
-                            </h2>
-                            
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">
-                                        Student/Class Selection
-                                    </label>
-                                    <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                                        <SelectTrigger className="border-[#d6e6f2] focus:ring-[#769fcd]">
-                                            <SelectValue placeholder="Select student or class" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="john-doe">John Doe - Intermediate</SelectItem>
-                                            <SelectItem value="jane-smith">Jane Smith - Advanced</SelectItem>
-                                            <SelectItem value="class-a1">Class A1 - Beginner</SelectItem>
-                                            <SelectItem value="class-b2">Class B2 - Upper Intermediate</SelectItem>
-                                            <SelectItem value="custom">Custom Selection</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">
-                                        Report Month
-                                    </label>
-                                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                                        <SelectTrigger className="border-[#d6e6f2] focus:ring-[#769fcd]">
-                                            <SelectValue placeholder="Select reporting period" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {months.map((month) => (
-                                                <SelectItem key={month.value} value={month.value}>
-                                                    {month.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
 
                     {/* Upload Section */}
                     <div className="space-y-6">
                         <FileUploadBox
-                            title="Upload Monthly Data"
-                            description="Upload multiple lesson reports, attendance data, or assessment files from the selected month"
-                            acceptedFileTypes=".pdf,.csv,.xlsx,.docx"
+                            title="Upload Daily Reports"
+                            description="Upload multiple daily report PDFs to analyze student progress patterns and generate comprehensive monthly insights"
+                            acceptedFileTypes=".pdf"
                             multiple={true}
                             onFilesSelected={handleFileUpload}
                         />
 
                         <NotesTextarea
-                            label="Monthly Notes"
-                            placeholder="Add any specific monthly observations, notable events, class dynamics, or particular focus areas you'd like emphasized in the summary..."
+                            label="Additional Context"
+                            placeholder="Add any specific monthly observations, notable events, class dynamics, or focus areas you'd like emphasized in the analysis..."
                             value={notes}
                             onChange={setNotes}
-                            maxLength={800}
-                            rows={5}
+                            maxLength={1000}
+                            rows={4}
                         />
 
                         {/* Progress Indicators */}
@@ -171,12 +264,15 @@ export default function MonthlySummarizationPage() {
                                         <div className="flex items-center space-x-2">
                                             <Icon name="CheckCircle" className="h-5 w-5 text-green-600" />
                                             <span className="text-sm font-medium text-gray-700">
-                                                {uploadedFiles.length} file(s) ready for processing
+                                                {uploadedFiles.length} daily report{uploadedFiles.length > 1 ? 's' : ''} ready for analysis
                                             </span>
                                         </div>
                                         <div className="text-xs text-gray-500">
-                                            AI will analyze all files to create comprehensive monthly insights
+                                            AI will analyze progress patterns across all uploaded reports
                                         </div>
+                                    </div>
+                                    <div className="mt-2 text-xs text-blue-600">
+                                        💡 Tip: More reports provide richer insights into learning patterns and trends
                                     </div>
                                 </CardContent>
                             </Card>
@@ -188,29 +284,51 @@ export default function MonthlySummarizationPage() {
                                 onClick={handleGenerateReport}
                                 disabled={isGenerating || uploadedFiles.length === 0}
                                 size="lg"
-                                className="bg-[#769fcd] hover:bg-[#769fcd]/90 text-white px-12 py-4 text-lg"
+                                className={`bg-gradient-to-r from-[#769fcd] to-[#b9d7ea] hover:from-[#769fcd]/90 hover:to-[#b9d7ea]/90 text-white px-12 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${
+                                    isGenerating ? 'esl-generating animate-pulse-soft' : ''
+                                }`}
                             >
                                 {isGenerating ? (
                                     <>
-                                        <Icon name="Loader2" className="h-5 w-5 mr-2 animate-spin" />
-                                        Analyzing Monthly Data...
+                                        <Icon name="Sparkles" className="h-5 w-5 mr-2 animate-bounce-gentle" />
+                                        <span className="animate-pulse">Analyzing Progress...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Icon name="Calendar" className="h-5 w-5 mr-2" />
-                                        Generate Monthly Summary
+                                        <Icon name="TrendingUp" className="h-5 w-5 mr-2" />
+                                        Generate Monthly Analysis
                                     </>
                                 )}
                             </Button>
                         </div>
 
-                        {/* Status Message */}
+                        {/* Enhanced Status Message */}
                         {isGenerating && (
+                            <div className="text-center animate-fadeInUp">
+                                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#f7fbfc] to-[#d6e6f2]/20 border border-[#b9d7ea]/30 rounded-full shadow-md backdrop-blur-sm">
+                                    <div className="relative">
+                                        <Icon name="Sparkles" className="h-5 w-5 mr-3 text-[#769fcd] animate-bounce-gentle" />
+                                        <div className="absolute -top-1 -right-1 h-3 w-3 bg-[#b9d7ea] rounded-full animate-ping"></div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            {generationProgress || 'AI is analyzing your daily reports...'}
+                                        </span>
+                                        <div className="h-1.5 w-48 bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-[#769fcd] to-[#b9d7ea] rounded-full animate-shimmer"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Error Message */}
+                        {error && (
                             <div className="text-center">
-                                <div className="inline-flex items-center px-4 py-2 bg-[#f7fbfc] border border-[#d6e6f2] rounded-full">
-                                    <Icon name="Brain" className="h-4 w-4 mr-2 text-[#769fcd]" />
-                                    <span className="text-sm text-gray-600">
-                                        AI is processing monthly data, identifying trends, and generating comprehensive insights...
+                                <div className="inline-flex items-center px-4 py-2 bg-red-50 border border-red-200 rounded-lg">
+                                    <Icon name="AlertCircle" className="h-4 w-4 mr-2 text-red-600" />
+                                    <span className="text-sm text-red-700">
+                                        {error}
                                     </span>
                                 </div>
                             </div>
@@ -220,11 +338,11 @@ export default function MonthlySummarizationPage() {
                     {/* Preview Section */}
                     <div id="preview-section">
                         <PreviewSection
-                            title="Monthly Progress Summary Report"
+                            title="Monthly Progress Analysis Report"
                             isVisible={showPreview}
                             onDownload={handleDownload}
                         >
-                            <MonthlyReportPreview />
+                            <MonthlyReportPreview data={reportData || undefined} />
                         </PreviewSection>
                     </div>
 

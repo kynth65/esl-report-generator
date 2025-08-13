@@ -330,6 +330,197 @@ GRAMMAR VALIDATION REQUIREMENTS:
     }
 
     /**
+     * Generate a monthly ESL report from multiple daily reports
+     */
+    public function generateMonthlyReport(array $extractedTexts, string $additionalNotes = ''): array
+    {
+        try {
+            $prompt = $this->buildMonthlyReportPrompt($extractedTexts, $additionalNotes);
+
+            $response = $this->client->post('/v1/chat/completions', [
+                'json' => [
+                    'model' => $this->model,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => 'You are an experienced ESL teacher assistant that creates comprehensive monthly progress reports by analyzing multiple daily reports. Always respond with valid JSON format. Focus on progress trends, skill development patterns, and overall student growth across the reporting period.',
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $prompt,
+                        ],
+                    ],
+                    'max_tokens' => config('openai.max_tokens', 6000),
+                    'temperature' => config('openai.temperature', 0.7),
+                    'response_format' => ['type' => 'json_object'],
+                ],
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if (! isset($responseData['choices'][0]['message']['content'])) {
+                throw new Exception('Invalid response format from OpenAI');
+            }
+
+            $reportData = json_decode($responseData['choices'][0]['message']['content'], true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Failed to parse AI response as JSON: '.json_last_error_msg());
+            }
+
+            return [
+                'success' => true,
+                'report' => $reportData,
+                'usage' => $responseData['usage'] ?? null,
+            ];
+        } catch (GuzzleException $e) {
+            Log::error('OpenAI API request failed for monthly report', [
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+
+            if (str_contains($e->getMessage(), 'cURL error 28') || str_contains($e->getMessage(), 'Operation timed out')) {
+                return [
+                    'success' => false,
+                    'error' => 'Request timed out. This can happen with large files or many files. Please try with smaller files or contact support if the issue persists.',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'AI service temporarily unavailable: '.$e->getMessage(),
+            ];
+        } catch (Exception $e) {
+            Log::error('Monthly report generation failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Build the prompt for monthly report generation from multiple daily reports
+     */
+    private function buildMonthlyReportPrompt(array $extractedTexts, string $additionalNotes): string
+    {
+        $dailyReportsContent = '';
+        foreach ($extractedTexts as $index => $item) {
+            $dailyReportsContent .= "\n--- DAILY REPORT " . ($index + 1) . " ({$item['filename']}) ---\n";
+            $dailyReportsContent .= $item['text'] . "\n";
+        }
+
+        $reportingPeriod = date('F Y'); // Current month/year
+        
+        return "Analyze the following ESL daily reports and generate a comprehensive monthly progress summary that focuses on student development trends, skill progression, and overall growth patterns. Work with whatever number of reports provided, from as few as 2-3 reports to many more, and provide meaningful insights regardless of the quantity.
+
+DAILY REPORTS TO ANALYZE:
+{$dailyReportsContent}
+
+ADDITIONAL CONTEXT:
+{$additionalNotes}
+
+Please create a detailed monthly progress report in JSON format with the following structure:
+
+{
+  \"period\": \"{$reportingPeriod}\",
+  \"total_sessions\": " . count($extractedTexts) . ",
+  \"overall_progress\": {
+    \"summary\": \"[2-3 sentence overview of the student's overall progress during this period]\",
+    \"achievements\": [
+      \"[Key breakthrough moment or significant achievement]\",
+      \"[Another notable achievement or milestone]\",
+      \"[Third achievement if applicable]\"
+    ],
+    \"improvements\": [
+      \"[Specific skill or area that showed clear improvement]\",
+      \"[Another area of measurable progress]\",
+      \"[Third improvement if applicable]\"
+    ],
+    \"focus_areas\": [
+      \"[Primary area that needs continued attention next month]\",
+      \"[Secondary focus area for improvement]\",
+      \"[Third priority area if applicable]\"
+    ]
+  },
+  \"skills_progression\": {
+    \"speaking_pronunciation\": {
+      \"initial_level\": \"[Level at start of reporting period]\",
+      \"current_level\": \"[Current level showing progression]\",
+      \"improvement_percentage\": [Numeric percentage of improvement, e.g., 15],
+      \"highlights\": [
+        \"[Specific speaking improvement observed]\",
+        \"[Pronunciation achievement or progress]\",
+        \"[Confidence or fluency development]\"
+      ]
+    },
+    \"listening_comprehension\": {
+      \"initial_level\": \"[Level at start of reporting period]\",
+      \"current_level\": \"[Current level showing progression]\",
+      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"highlights\": [
+        \"[Listening skill improvement]\",
+        \"[Comprehension achievement]\",
+        \"[Audio processing development]\"
+      ]
+    },
+    \"reading_vocabulary\": {
+      \"initial_level\": \"[Level at start of reporting period]\",
+      \"current_level\": \"[Current level showing progression]\",
+      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"highlights\": [
+        \"[Reading skill development]\",
+        \"[Vocabulary expansion achievement]\",
+        \"[Text comprehension progress]\"
+      ]
+    },
+    \"grammar_writing\": {
+      \"initial_level\": \"[Level at start of reporting period]\",
+      \"current_level\": \"[Current level showing progression]\",
+      \"improvement_percentage\": [Numeric percentage of improvement],
+      \"highlights\": [
+        \"[Grammar concept mastery]\",
+        \"[Writing skill improvement]\",
+        \"[Accuracy development]\"
+      ]
+    }
+  },
+  \"consistency_metrics\": {
+    \"attendance_rate\": [Percentage based on sessions completed],
+    \"engagement_level\": [Percentage reflecting participation and effort],
+    \"homework_completion\": [Percentage of homework assignments completed],
+    \"participation_score\": [Percentage reflecting class participation quality]
+  },
+  \"recommendations\": [
+    \"[Specific recommendation for continued learning]\",
+    \"[Teaching strategy or focus for next period]\",
+    \"[Student behavior or study habit recommendation]\"
+  ],
+  \"next_month_goals\": [
+    \"[Specific learning objective for next month]\",
+    \"[Skill development target]\",
+    \"[Challenge or advanced topic to introduce]\"
+  ]
+}
+
+IMPORTANT ANALYSIS GUIDELINES:
+- Focus on TRENDS and PATTERNS across the daily reports, not individual lesson details
+- Identify PROGRESSION in skills from early reports to recent ones (even with just 2-3 reports, look for any changes or consistency patterns)
+- Look for RECURRING themes in achievements and challenges
+- Calculate realistic improvement percentages based on observed progress (even small samples can show meaningful trends)
+- Provide ACTIONABLE recommendations based on the student's learning trajectory
+- Ensure consistency metrics reflect the actual data from the reports
+- Do NOT include homework exercises, vocabulary lists, or grammar corrections (this is a progress analysis, not a lesson plan)
+- Focus on the student's DEVELOPMENT JOURNEY rather than specific lesson content
+- Work effectively with any number of reports provided - even 2-3 reports can yield valuable insights about consistency, engagement patterns, and learning preferences
+
+The report should demonstrate clear understanding of the student's learning patterns across the available reporting period and provide valuable insights for continued instruction, regardless of whether you're analyzing 2 reports or 15+ reports.";
+    }
+
+    /**
      * Build the prompt for PDF analysis and report generation
      */
     private function buildPDFAnalysisPrompt(string $additionalNotes): string

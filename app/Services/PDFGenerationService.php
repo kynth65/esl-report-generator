@@ -235,4 +235,201 @@ class PDFGenerationService
             'errors' => $errors,
         ];
     }
+
+    /**
+     * Generate a PDF from monthly report data
+     */
+    public function generateMonthlyReportPDF(array $reportData, array $metadata = []): array
+    {
+        try {
+            Log::info('Starting PDF generation for monthly report', [
+                'period' => $reportData['period'] ?? 'unknown',
+                'total_sessions' => $reportData['total_sessions'] ?? 'unknown',
+            ]);
+
+            // Prepare data for the PDF template
+            $pdfData = [
+                'report' => $reportData,
+                'metadata' => $metadata,
+                'generated_at' => now()->format('F j, Y \a\t g:i A'),
+            ];
+
+            // Configure PDF settings
+            $pdf = Pdf::loadView('pdf.monthly-report', $pdfData)
+                ->setPaper('letter', 'portrait')
+                ->setOptions([
+                    'defaultFont' => 'DejaVu Sans',
+                    'isRemoteEnabled' => false,
+                    'isHtml5ParserEnabled' => true,
+                    'debugPng' => false,
+                    'debugKeepTemp' => false,
+                    'debugCss' => false,
+                    'isPhpEnabled' => false,
+                    'chroot' => public_path(),
+                ]);
+
+            // Generate the PDF content
+            $pdfContent = $pdf->output();
+
+            // Generate filename
+            $period = $reportData['period'] ?? date('F Y');
+            $filename = 'ESL_Monthly_Report_'.str_replace([' ', '-'], '_', $period).'_'.date('Y_m_d').'.pdf';
+
+            Log::info('Monthly PDF generated successfully', [
+                'filename' => $filename,
+                'size_kb' => round(strlen($pdfContent) / 1024, 2),
+            ]);
+
+            return [
+                'success' => true,
+                'pdf_content' => $pdfContent,
+                'filename' => $filename,
+                'size' => strlen($pdfContent),
+                'metadata' => [
+                    'generated_at' => now()->toISOString(),
+                    'period' => $period,
+                    'total_sessions' => $reportData['total_sessions'] ?? 0,
+                    'file_size_kb' => round(strlen($pdfContent) / 1024, 2),
+                ],
+            ];
+        } catch (Exception $e) {
+            Log::error('Monthly PDF generation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => 'Failed to generate monthly PDF: '.$e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Stream monthly PDF to browser for download
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function downloadMonthlyReportPDF(array $reportData, array $metadata = [])
+    {
+        try {
+            $result = $this->generateMonthlyReportPDF($reportData, $metadata);
+
+            if (! $result['success']) {
+                throw new Exception($result['error']);
+            }
+
+            // Return PDF as download response
+            return response($result['pdf_content'])
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="'.$result['filename'].'"')
+                ->header('Content-Length', (string) $result['size'])
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+        } catch (Exception $e) {
+            Log::error('Monthly PDF download failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Preview monthly PDF in browser (inline)
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function previewMonthlyReportPDF(array $reportData, array $metadata = [])
+    {
+        try {
+            $result = $this->generateMonthlyReportPDF($reportData, $metadata);
+
+            if (! $result['success']) {
+                throw new Exception($result['error']);
+            }
+
+            // Return PDF for inline viewing
+            return response($result['pdf_content'])
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="'.$result['filename'].'"')
+                ->header('Content-Length', (string) $result['size']);
+        } catch (Exception $e) {
+            Log::error('Monthly PDF preview failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Validate monthly report data for PDF generation
+     */
+    public function validateMonthlyReportData(array $reportData): array
+    {
+        $errors = [];
+
+        // Check required fields
+        $requiredFields = ['period', 'total_sessions', 'overall_progress', 'skills_progression'];
+        foreach ($requiredFields as $field) {
+            if (empty($reportData[$field])) {
+                $errors[] = "Missing required field: {$field}";
+            }
+        }
+
+        // Validate overall_progress structure
+        if (isset($reportData['overall_progress'])) {
+            if (! is_array($reportData['overall_progress'])) {
+                $errors[] = 'Overall progress must be an array';
+            } else {
+                $progressFields = ['summary', 'achievements', 'improvements', 'focus_areas'];
+                foreach ($progressFields as $field) {
+                    if (empty($reportData['overall_progress'][$field])) {
+                        $errors[] = "Missing overall_progress field: {$field}";
+                    }
+                }
+            }
+        }
+
+        // Validate skills_progression structure
+        if (isset($reportData['skills_progression'])) {
+            if (! is_array($reportData['skills_progression'])) {
+                $errors[] = 'Skills progression must be an array';
+            } else {
+                foreach ($reportData['skills_progression'] as $skill => $progression) {
+                    if (! is_array($progression)) {
+                        $errors[] = "Skills progression for {$skill} must be an array";
+                    } else {
+                        $requiredProgressionFields = ['initial_level', 'current_level', 'improvement_percentage', 'highlights'];
+                        foreach ($requiredProgressionFields as $field) {
+                            if (! isset($progression[$field])) {
+                                $errors[] = "Missing skills progression field {$field} for {$skill}";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Validate consistency_metrics if present
+        if (isset($reportData['consistency_metrics'])) {
+            if (! is_array($reportData['consistency_metrics'])) {
+                $errors[] = 'Consistency metrics must be an array';
+            } else {
+                $metricsFields = ['attendance_rate', 'engagement_level', 'homework_completion', 'participation_score'];
+                foreach ($metricsFields as $field) {
+                    if (! isset($reportData['consistency_metrics'][$field]) || ! is_numeric($reportData['consistency_metrics'][$field])) {
+                        $errors[] = "Missing or invalid consistency metric: {$field}";
+                    }
+                }
+            }
+        }
+
+        return [
+            'is_valid' => empty($errors),
+            'errors' => $errors,
+        ];
+    }
 }
