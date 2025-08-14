@@ -19,7 +19,6 @@ class ClassSchedule extends Model
 
     protected $casts = [
         'class_date' => 'date',
-        'start_time' => 'datetime:H:i:s',
         'duration_minutes' => 'integer'
     ];
 
@@ -42,7 +41,7 @@ class ClassSchedule extends Model
 
     public function getEndTimeAttribute(): string
     {
-        $startTime = Carbon::createFromFormat('H:i:s', $this->start_time);
+        $startTime = Carbon::createFromFormat('H:i', substr($this->start_time, 0, 5));
         return $startTime->addMinutes($this->duration_minutes)->format('H:i');
     }
 

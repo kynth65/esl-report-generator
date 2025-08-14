@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Link, router, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, User, Filter, Search, ChevronLeft, ChevronRight, CalendarDays, Trash2 } from 'lucide-react';
+import { Plus, Calendar, Clock, User, Filter, Search, ChevronLeft, ChevronRight, CalendarDays, Trash2, CheckCircle, Check, X, DollarSign } from 'lucide-react';
 
 interface Student {
     id: number;
     name: string;
+    price_amount?: number;
+    duration_minutes?: number;
 }
 
 interface ClassSchedule {
@@ -23,6 +25,24 @@ interface ClassSchedule {
     notes?: string;
 }
 
+interface WeeklyEarning {
+    week_start: string;
+    week_end: string;
+    week_label: string;
+    total_earnings: number;
+    classes: {
+        id: number;
+        student_name: string;
+        student_id: number;
+        class_date: string;
+        start_time: string;
+        duration_minutes: number;
+        duration_hours: string;
+        notes?: string;
+        price: number;
+    }[];
+}
+
 interface CalendarPageProps {
     classes: {
         data: ClassSchedule[];
@@ -31,6 +51,9 @@ interface CalendarPageProps {
     };
     students: Student[];
     todaysClasses: ClassSchedule[];
+    monthlyCompletedClasses: number;
+    currentMonthName: string;
+    weeklyEarnings: WeeklyEarning[];
     filters: {
         student_id?: string;
         status?: string;
@@ -39,12 +62,15 @@ interface CalendarPageProps {
     };
 }
 
-export default function CalendarPage({ classes, students, todaysClasses, filters }: CalendarPageProps) {
+export default function CalendarPage({ classes, students, todaysClasses, monthlyCompletedClasses, currentMonthName, weeklyEarnings, filters }: CalendarPageProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<'month' | 'list'>('month');
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [classToDelete, setClassToDelete] = useState<ClassSchedule | null>(null);
     const [calendarData, setCalendarData] = useState<{ [key: string]: ClassSchedule[] }>({});
+    const [currentMonthCompleted, setCurrentMonthCompleted] = useState(monthlyCompletedClasses);
+    const [currentMonthDisplayName, setCurrentMonthDisplayName] = useState(currentMonthName);
+    const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
     
     const { data, setData, get, processing } = useForm({
         student_id: filters.student_id || 'all',
@@ -67,7 +93,15 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
         
         fetch(`/calendar/data?${params.toString()}`)
             .then(res => res.json())
-            .then(calendarData => setCalendarData(calendarData))
+            .then(response => {
+                setCalendarData(response.classes || response);
+                if (response.completedCount !== undefined) {
+                    setCurrentMonthCompleted(response.completedCount);
+                }
+                if (response.monthName) {
+                    setCurrentMonthDisplayName(response.monthName);
+                }
+            })
             .catch(console.error);
     }, [currentDate, data.student_id, data.status, data.date_from, data.date_to]);
 
@@ -107,10 +141,31 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
         setClassToDelete(null);
     };
 
+    const updateClassStatus = (classItem: ClassSchedule, status: 'completed' | 'cancelled') => {
+        // Ensure start_time is in H:i format (remove seconds if present)
+        const formattedStartTime = classItem.start_time.includes(':')
+            ? classItem.start_time.split(':').slice(0, 2).join(':')
+            : classItem.start_time;
+            
+        router.patch(`/schedules/${classItem.id}`, {
+            student_id: classItem.student.id,
+            class_date: classItem.class_date,
+            start_time: formattedStartTime,
+            duration_minutes: classItem.duration_minutes,
+            status: status,
+            notes: classItem.notes || ''
+        }, {
+            onSuccess: () => {
+                // Refresh the entire page to get updated data
+                router.reload({ only: ['todaysClasses', 'monthlyCompletedClasses', 'currentMonthName'] });
+            }
+        });
+    };
+
     const getStatusBadge = (status: string) => {
         const colors = {
-            upcoming: 'bg-green-100 text-green-800 border-green-200',
-            completed: 'bg-blue-100 text-blue-800 border-blue-200',
+            upcoming: 'bg-blue-100 text-blue-800 border-blue-200',
+            completed: 'bg-green-100 text-green-800 border-green-200',
             cancelled: 'bg-red-100 text-red-800 border-red-200'
         };
         return colors[status as keyof typeof colors] || colors.upcoming;
@@ -125,10 +180,9 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
     };
 
     const getDurationText = (minutes: number) => {
-        if (minutes === 30) return '30 min';
+        if (minutes === 25) return '25 min';
+        if (minutes === 50) return '50 min';
         if (minutes === 60) return '1 hour';
-        if (minutes === 90) return '1.5 hours';
-        if (minutes === 120) return '2 hours';
         return `${minutes} min`;
     };
 
@@ -218,6 +272,25 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
     const goToToday = () => {
         setCurrentDate(new Date());
     };
+
+    const calculateClassCost = (classItem: ClassSchedule): number => {
+        if (!classItem.student.price_amount || !classItem.student.duration_minutes || classItem.student.duration_minutes === 0) {
+            return 0;
+        }
+        
+        const pricePerMinute = classItem.student.price_amount / classItem.student.duration_minutes;
+        return Math.round(pricePerMinute * classItem.duration_minutes * 100) / 100;
+    };
+
+    const navigateWeek = (direction: 'prev' | 'next') => {
+        if (direction === 'prev' && currentWeekIndex > 0) {
+            setCurrentWeekIndex(currentWeekIndex - 1);
+        } else if (direction === 'next' && currentWeekIndex < weeklyEarnings.length - 1) {
+            setCurrentWeekIndex(currentWeekIndex + 1);
+        }
+    };
+
+    const currentWeek = weeklyEarnings[currentWeekIndex];
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Calendar', href: '/calendar' }]}>
@@ -320,15 +393,15 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
                 </Card>
 
                 {/* Today's Classes */}
-                {todaysClasses.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <CalendarDays className="h-5 w-5" />
-                                Today's Classes
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CalendarDays className="h-5 w-5" />
+                            Today's Classes
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {todaysClasses.length > 0 ? (
                             <div className="space-y-3">
                                 {todaysClasses.map((classItem) => (
                                     <div key={classItem.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
@@ -341,21 +414,96 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
                                                 <Clock className="h-4 w-4" />
                                                 <span>{formatTime(classItem.start_time)} ({getDurationText(classItem.duration_minutes)})</span>
                                             </div>
+                                            {calculateClassCost(classItem) > 0 && (
+                                                <div className="text-sm font-semibold text-green-600">
+                                                    ${calculateClassCost(classItem).toFixed(2)}
+                                                </div>
+                                            )}
                                             <Badge className={`text-xs ${getStatusBadge(classItem.status)}`}>
                                                 {classItem.status}
                                             </Badge>
                                         </div>
-                                        <Link href={`/schedules/${classItem.id}/edit`}>
-                                            <Button variant="ghost" size="sm">
-                                                Edit
-                                            </Button>
-                                        </Link>
+                                        <div className="flex gap-2">
+                                            {classItem.status === 'upcoming' && (
+                                                <>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm"
+                                                        onClick={() => updateClassStatus(classItem, 'completed')}
+                                                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    >
+                                                        <Check className="h-4 w-4 mr-1" />
+                                                        Complete
+                                                    </Button>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm"
+                                                        onClick={() => updateClassStatus(classItem, 'cancelled')}
+                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    >
+                                                        <X className="h-4 w-4 mr-1" />
+                                                        Cancel
+                                                    </Button>
+                                                </>
+                                            )}
+                                            <Link href={`/schedules/${classItem.id}/edit`}>
+                                                <Button variant="ghost" size="sm">
+                                                    Edit
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        </CardContent>
-                    </Card>
-                )}
+                        ) : (
+                            <div className="text-center py-8">
+                                <CalendarDays className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">No classes today</h3>
+                                <p className="text-gray-600">You have no scheduled classes for today.</p>
+                                <Link href="/schedules/create">
+                                    <Button className="mt-4 bg-primary hover:bg-primary/90">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Schedule a Class
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Total Completed Classes */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            Completed Classes - {currentMonthDisplayName}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-3xl font-bold text-green-600">
+                                    {currentMonthCompleted}
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    {currentMonthCompleted === 1 ? 'class completed' : 'classes completed'} in {currentMonthDisplayName}
+                                    {(filters.student_id && filters.student_id !== 'all') && ' (filtered by student)'}
+                                </p>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-sm text-gray-600">
+                                    {currentMonthCompleted > 0 ? 'Great progress this month!' : 'Ready to start teaching?'}
+                                </div>
+                                <Link href="/schedules/create">
+                                    <Button variant="outline" size="sm" className="mt-2">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Schedule More
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Calendar/List View */}
                 <Card>
@@ -448,6 +596,11 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
                                                     <User className="h-4 w-4 text-gray-600" />
                                                     <span>{classItem.student.name}</span>
                                                 </div>
+                                                {calculateClassCost(classItem) > 0 && (
+                                                    <div className="text-sm font-semibold text-green-600">
+                                                        ${calculateClassCost(classItem).toFixed(2)}
+                                                    </div>
+                                                )}
                                                 <Badge className={`text-xs ${getStatusBadge(classItem.status)}`}>
                                                     {classItem.status}
                                                 </Badge>
@@ -493,6 +646,136 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Weekly Earnings */}
+                {weeklyEarnings.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <DollarSign className="h-5 w-5 text-green-600" />
+                                Weekly Earnings Overview
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {/* Week Navigation */}
+                            <div className="flex items-center justify-between mb-6">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => navigateWeek('prev')}
+                                    disabled={currentWeekIndex === 0}
+                                    className="flex items-center gap-2"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Previous Week
+                                </Button>
+                                
+                                <div className="text-center">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        {currentWeek ? currentWeek.week_label : 'No data'}
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        Week {currentWeekIndex + 1} of {weeklyEarnings.length}
+                                        {filters.student_id && filters.student_id !== 'all' && ' (filtered by student)'}
+                                    </p>
+                                </div>
+                                
+                                <Button 
+                                    variant="outline"
+                                    onClick={() => navigateWeek('next')}
+                                    disabled={currentWeekIndex >= weeklyEarnings.length - 1}
+                                    className="flex items-center gap-2"
+                                >
+                                    Next Week
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            {currentWeek && (
+                                <>
+                                    {/* Week Total */}
+                                    <div className="bg-green-50 border border-green-200 p-6 rounded-lg mb-6">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-green-800 font-medium text-lg">Total Earnings This Week:</span>
+                                            <span className="text-2xl font-bold text-green-900">
+                                                ${currentWeek.total_earnings.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <p className="text-green-700 text-sm mt-2">
+                                            {currentWeek.classes.length} {currentWeek.classes.length === 1 ? 'class' : 'classes'} completed
+                                        </p>
+                                    </div>
+
+                                    {/* Classes in this week */}
+                                    <div className="space-y-3">
+                                        <h4 className="font-semibold text-gray-900 text-lg mb-4">Completed Classes This Week</h4>
+                                        {currentWeek.classes.map((classItem) => (
+                                            <div key={classItem.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto mb-4 sm:mb-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <User className="h-4 w-4 text-gray-600" />
+                                                        <Link 
+                                                            href={`/students/${classItem.student_id}`}
+                                                            className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                                                        >
+                                                            {classItem.student_name}
+                                                        </Link>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-gray-600">
+                                                        <Calendar className="h-4 w-4" />
+                                                        <span className="font-medium">{classItem.class_date}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-gray-600">
+                                                        <Clock className="h-4 w-4" />
+                                                        <span>{classItem.start_time} ({classItem.duration_hours})</span>
+                                                    </div>
+                                                    {classItem.price && classItem.price > 0 && (
+                                                        <div className="font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full text-sm">
+                                                            ${classItem.price.toFixed(2)}
+                                                        </div>
+                                                    )}
+                                                    <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-sm">
+                                                        completed
+                                                    </Badge>
+                                                </div>
+                                                <div className="flex gap-2 w-full sm:w-auto">
+                                                    <Link href={`/schedules/${classItem.id}/edit`} className="flex-1 sm:flex-none">
+                                                        <Button variant="ghost" size="sm" className="w-full sm:w-auto">
+                                                            Edit
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Summary */}
+                            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <div className="text-2xl font-bold text-blue-600">{weeklyEarnings.length}</div>
+                                        <div className="text-sm text-gray-600">
+                                            {weeklyEarnings.length === 1 ? 'Week' : 'Weeks'} with Classes
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold text-green-600">
+                                            {weeklyEarnings.reduce((sum, week) => sum + week.classes.length, 0)}
+                                        </div>
+                                        <div className="text-sm text-gray-600">Total Completed Classes</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold text-purple-600">
+                                            ${weeklyEarnings.reduce((sum, week) => sum + week.total_earnings, 0).toFixed(2)}
+                                        </div>
+                                        <div className="text-sm text-gray-600">Total Earnings</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             {/* Delete Confirmation Modal */}

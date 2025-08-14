@@ -10,11 +10,15 @@ class Student extends Model
     protected $fillable = [
         'name',
         'gender',
-        'notes'
+        'notes',
+        'price_amount',
+        'duration_minutes'
     ];
 
     protected $casts = [
-        'gender' => 'string'
+        'gender' => 'string',
+        'price_amount' => 'decimal:2',
+        'duration_minutes' => 'integer'
     ];
 
     public function classSchedules(): HasMany
@@ -29,5 +33,15 @@ class Student extends Model
             ->where('class_date', '>=', now()->format('Y-m-d'))
             ->orderBy('class_date')
             ->orderBy('start_time');
+    }
+
+    public function calculateClassCost(int $classDurationMinutes): float
+    {
+        if (!$this->price_amount || !$this->duration_minutes || $this->duration_minutes == 0) {
+            return 0.0;
+        }
+        
+        $pricePerMinute = $this->price_amount / $this->duration_minutes;
+        return round($pricePerMinute * $classDurationMinutes, 2);
     }
 }

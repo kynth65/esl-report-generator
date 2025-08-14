@@ -11,6 +11,8 @@ import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 interface Student {
     id: number;
     name: string;
+    price_amount?: number;
+    duration_minutes?: number;
 }
 
 interface ClassSchedule {
@@ -30,10 +32,15 @@ interface EditSchedulePageProps {
 }
 
 export default function EditSchedulePage({ classSchedule, students }: EditSchedulePageProps) {
+    // Format start_time to H:i format (remove seconds if present)
+    const formattedStartTime = classSchedule.start_time.includes(':')
+        ? classSchedule.start_time.split(':').slice(0, 2).join(':')
+        : classSchedule.start_time;
+        
     const { data, setData, put, processing, errors } = useForm({
         student_id: classSchedule.student_id.toString(),
         class_date: classSchedule.class_date,
-        start_time: classSchedule.start_time,
+        start_time: formattedStartTime,
         duration_minutes: classSchedule.duration_minutes.toString(),
         status: classSchedule.status,
         notes: classSchedule.notes || ''
@@ -41,7 +48,21 @@ export default function EditSchedulePage({ classSchedule, students }: EditSchedu
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/schedules/${classSchedule.id}`);
+        
+        // Ensure start_time is in H:i format before submission
+        const formattedStartTime = data.start_time.includes(':')
+            ? data.start_time.split(':').slice(0, 2).join(':')
+            : data.start_time;
+        
+        // Create a temporary form with formatted data
+        put(`/schedules/${classSchedule.id}`, {
+            student_id: data.student_id,
+            class_date: data.class_date,
+            start_time: formattedStartTime,
+            duration_minutes: data.duration_minutes,
+            status: data.status,
+            notes: data.notes
+        });
     };
 
     const handleDelete = () => {
@@ -50,11 +71,22 @@ export default function EditSchedulePage({ classSchedule, students }: EditSchedu
         }
     };
 
+    const calculateClassCost = (): number => {
+        if (!data.student_id || !data.duration_minutes) return 0;
+        
+        const selectedStudent = students.find(student => student.id.toString() === data.student_id);
+        if (!selectedStudent?.price_amount || !selectedStudent?.duration_minutes || selectedStudent.duration_minutes === 0) {
+            return 0;
+        }
+        
+        const pricePerMinute = selectedStudent.price_amount / selectedStudent.duration_minutes;
+        return Math.round(pricePerMinute * Number(data.duration_minutes) * 100) / 100;
+    };
+
     const durationOptions = [
-        { value: '30', label: '30 minutes' },
-        { value: '60', label: '1 hour' },
-        { value: '90', label: '1.5 hours' },
-        { value: '120', label: '2 hours' }
+        { value: '25', label: '25 minutes' },
+        { value: '50', label: '50 minutes' },
+        { value: '60', label: '1 hour' }
     ];
 
     const statusOptions = [
@@ -189,6 +221,17 @@ export default function EditSchedulePage({ classSchedule, students }: EditSchedu
                                         <p className="text-sm text-red-600 mt-1">{errors.status}</p>
                                     )}
                                 </div>
+
+                                {/* Price Information */}
+                                {data.student_id && data.duration_minutes && calculateClassCost() > 0 && (
+                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <h3 className="text-base font-semibold text-blue-800 mb-2">Class Cost</h3>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-blue-700">Price for {data.duration_minutes} minutes:</span>
+                                            <span className="text-xl font-bold text-blue-900">${calculateClassCost().toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-3">
                                     <Label htmlFor="notes" className="text-base font-semibold text-gray-700">Notes</Label>

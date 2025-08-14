@@ -13,6 +13,8 @@ interface Student {
     name: string;
     gender: 'male' | 'female' | 'other';
     notes?: string;
+    price_amount?: number;
+    duration_minutes?: number;
 }
 
 interface EditStudentPageProps {
@@ -23,7 +25,9 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
     const { data, setData, put, processing, errors } = useForm({
         name: student.name,
         gender: student.gender,
-        notes: student.notes || ''
+        notes: student.notes || '',
+        price_amount: student.price_amount?.toString() || '',
+        duration_minutes: student.duration_minutes?.toString() || ''
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -94,7 +98,51 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
                                             <p className="text-sm text-red-600 mt-1">{errors.gender}</p>
                                         )}
                                     </div>
+
+                                    <div className="space-y-3">
+                                        <Label htmlFor="price_amount" className="text-base font-semibold text-gray-700">Price Amount ($)</Label>
+                                        <Input
+                                            id="price_amount"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.price_amount}
+                                            onChange={(e) => setData('price_amount', e.target.value)}
+                                            placeholder="Enter price amount (e.g., 5.00)"
+                                            className={`h-12 text-base ${errors.price_amount ? 'border-red-500' : 'border-gray-300'}`}
+                                        />
+                                        {errors.price_amount && (
+                                            <p className="text-sm text-red-600 mt-1">{errors.price_amount}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label htmlFor="duration_minutes" className="text-base font-semibold text-gray-700">Duration (minutes)</Label>
+                                        <Select value={data.duration_minutes} onValueChange={(value) => setData('duration_minutes', value)}>
+                                            <SelectTrigger className={`h-12 ${errors.duration_minutes ? 'border-red-500' : 'border-gray-300'}`}>
+                                                <SelectValue placeholder="Select duration" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="25">25 minutes</SelectItem>
+                                                <SelectItem value="50">50 minutes</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.duration_minutes && (
+                                            <p className="text-sm text-red-600 mt-1">{errors.duration_minutes}</p>
+                                        )}
+                                    </div>
                                 </div>
+
+                                {/* Pricing preview */}
+                                {data.price_amount && data.duration_minutes && (
+                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Rate:</strong> ${(parseFloat(data.price_amount) / parseFloat(data.duration_minutes)).toFixed(4)} per minute
+                                            {' • '}
+                                            <strong>Example:</strong> A 50-minute class would cost ${((parseFloat(data.price_amount) / parseFloat(data.duration_minutes)) * 50).toFixed(2)}
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="space-y-3">
                                     <Label htmlFor="notes" className="text-base font-semibold text-gray-700">Notes</Label>

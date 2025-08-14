@@ -5,6 +5,7 @@
       "Bash(php artisan route:list:*)",
       "WebFetch(domain:tailwindcss.com)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }
