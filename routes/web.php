@@ -8,9 +8,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Dashboard
+    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+
+    // Student Management
+    Route::resource('students', App\Http\Controllers\StudentController::class);
+    
+    // Class Schedule Management
+    Route::resource('schedules', App\Http\Controllers\ClassScheduleController::class);
+    Route::get('calendar', [App\Http\Controllers\ClassScheduleController::class, 'index'])->name('calendar.index');
+    Route::get('calendar/data', [App\Http\Controllers\ClassScheduleController::class, 'getCalendarData'])->name('calendar.data');
 
     // ESL Report Generator Routes
     Route::get('daily-summary', function () {

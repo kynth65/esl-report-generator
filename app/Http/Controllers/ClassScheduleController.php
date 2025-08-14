@@ -19,11 +19,11 @@ class ClassScheduleController extends Controller
             ->orderBy('class_date', 'desc')
             ->orderBy('start_time', 'desc');
 
-        if ($request->has('student_id') && $request->student_id) {
+        if ($request->has('student_id') && $request->student_id !== 'all' && $request->student_id) {
             $query->where('student_id', $request->student_id);
         }
 
-        if ($request->has('status') && $request->status) {
+        if ($request->has('status') && $request->status !== 'all' && $request->status) {
             $query->where('status', $request->status);
         }
 
@@ -37,10 +37,17 @@ class ClassScheduleController extends Controller
 
         $classes = $query->paginate(20);
         $students = Student::orderBy('name')->get();
-        $todaysClasses = ClassSchedule::with('student')
-            ->where('class_date', Carbon::today())
-            ->orderBy('start_time')
-            ->get();
+        
+        // Apply student filter to today's classes if filter is set
+        $todaysQuery = ClassSchedule::with('student')
+            ->where('class_date', Carbon::today()->format('Y-m-d'))
+            ->orderBy('start_time');
+            
+        if ($request->has('student_id') && $request->student_id !== 'all' && $request->student_id) {
+            $todaysQuery->where('student_id', $request->student_id);
+        }
+        
+        $todaysClasses = $todaysQuery->get();
 
         return Inertia::render('calendar/index', [
             'classes' => $classes,
@@ -55,7 +62,11 @@ class ClassScheduleController extends Controller
      */
     public function create()
     {
-        //
+        $students = Student::orderBy('name')->get();
+        
+        return Inertia::render('Schedules/CreateSchedulePage', [
+            'students' => $students
+        ]);
     }
 
     /**
@@ -73,7 +84,7 @@ class ClassScheduleController extends Controller
 
         // Check for time conflicts
         $startTime = Carbon::createFromFormat('H:i', $validated['start_time']);
-        $endTime = $startTime->copy()->addMinutes($validated['duration_minutes']);
+        $endTime = $startTime->copy()->addMinutes((int) $validated['duration_minutes']);
         
         $conflict = ClassSchedule::where('class_date', $validated['class_date'])
             ->where('status', '!=', 'cancelled')
@@ -111,15 +122,23 @@ class ClassScheduleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(ClassSchedule $schedule)
     {
-        //
+        $students = Student::orderBy('name')->get();
+        
+        // Load the student relationship and ensure the data is properly formatted
+        $schedule->load('student');
+        
+        return Inertia::render('Schedules/EditSchedulePage', [
+            'classSchedule' => $schedule,
+            'students' => $students
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ClassSchedule $classSchedule)
+    public function update(Request $request, ClassSchedule $schedule)
     {
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
@@ -130,7 +149,7 @@ class ClassScheduleController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        $classSchedule->update($validated);
+        $schedule->update($validated);
 
         return redirect()->route('calendar.index')->with('success', 'Class updated successfully!');
     }
@@ -138,9 +157,9 @@ class ClassScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ClassSchedule $classSchedule)
+    public function destroy(ClassSchedule $schedule)
     {
-        $classSchedule->delete();
+        $schedule->delete();
 
         return redirect()->route('calendar.index')->with('success', 'Class deleted successfully!');
     }
@@ -151,12 +170,29 @@ class ClassScheduleController extends Controller
         $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
 
-        $classes = ClassSchedule::with('student')
-            ->whereBetween('class_date', [$startDate, $endDate])
-            ->get()
-            ->groupBy(function ($class) {
-                return $class->class_date->format('Y-m-d');
-            });
+        $query = ClassSchedule::with('student')
+            ->whereBetween('class_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+
+        // Apply filters same as index method
+        if ($request->has('student_id') && $request->student_id !== 'all' && $request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
+
+        if ($request->has('status') && $request->status !== 'all' && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('date_from') && $request->date_from) {
+            $query->where('class_date', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            $query->where('class_date', '<=', $request->date_to);
+        }
+
+        $classes = $query->get()->groupBy(function ($class) {
+            return $class->class_date;
+        });
 
         return response()->json($classes);
     }

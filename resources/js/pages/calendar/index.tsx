@@ -57,11 +57,19 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
     // Load calendar data for current month
     useEffect(() => {
         const monthKey = currentDate.toISOString().slice(0, 7); // YYYY-MM
-        fetch(`/calendar/data?month=${monthKey}`)
+        const params = new URLSearchParams({
+            month: monthKey,
+            ...(data.student_id !== 'all' && { student_id: data.student_id }),
+            ...(data.status !== 'all' && { status: data.status }),
+            ...(data.date_from && { date_from: data.date_from }),
+            ...(data.date_to && { date_to: data.date_to })
+        });
+        
+        fetch(`/calendar/data?${params.toString()}`)
             .then(res => res.json())
-            .then(data => setCalendarData(data))
+            .then(calendarData => setCalendarData(calendarData))
             .catch(console.error);
-    }, [currentDate]);
+    }, [currentDate, data.student_id, data.status, data.date_from, data.date_to]);
 
     const handleFilter = () => {
         get('/calendar', { preserveState: true });
@@ -403,9 +411,27 @@ export default function CalendarPage({ classes, students, todaysClasses, filters
                                 ) : (
                                     [...classes.data]
                                         .sort((a, b) => {
-                                            const dateA = new Date(`${a.class_date}T${a.start_time}`);
-                                            const dateB = new Date(`${b.class_date}T${b.start_time}`);
-                                            return dateB.getTime() - dateA.getTime();
+                                            // Create proper datetime objects for comparison
+                                            const dateTimeA = new Date(`${a.class_date}T${a.start_time}`);
+                                            const dateTimeB = new Date(`${b.class_date}T${b.start_time}`);
+                                            const now = new Date();
+                                            
+                                            // Determine if classes are upcoming (including today's future classes)
+                                            const aIsUpcoming = dateTimeA >= now;
+                                            const bIsUpcoming = dateTimeB >= now;
+                                            
+                                            // Prioritize upcoming classes over past classes
+                                            if (aIsUpcoming && !bIsUpcoming) return -1;
+                                            if (!aIsUpcoming && bIsUpcoming) return 1;
+                                            
+                                            // For all classes (both upcoming and past), sort chronologically
+                                            // Upcoming: earliest first (ascending)
+                                            // Past: most recent first (descending) 
+                                            if (aIsUpcoming && bIsUpcoming) {
+                                                return dateTimeA.getTime() - dateTimeB.getTime();
+                                            } else {
+                                                return dateTimeB.getTime() - dateTimeA.getTime();
+                                            }
                                         })
                                         .map((classItem) => (
                                         <div key={classItem.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">

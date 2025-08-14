@@ -53,7 +53,7 @@ class DashboardController extends Controller
             ->whereBetween('class_date', [$startOfMonth, $endOfMonth])
             ->get()
             ->groupBy(function ($class) {
-                return $class->class_date->format('Y-m-d');
+                return \Carbon\Carbon::parse($class->class_date)->format('Y-m-d');
             });
             
         // Get statistics
