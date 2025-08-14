@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-ESL Report Generator is a multi-level summarization system for ESL (English as a Second Language) teaching reports. It processes PDF documents and generates Daily, Monthly, and Comparison reports using OpenAI integration.
+ESL Report Generator is a comprehensive ESL (English as a Second Language) management system that combines report generation with student and class schedule management. It processes PDF documents to generate Daily, Monthly, and Comparison reports using OpenAI integration, while providing full student management capabilities including pricing, payment tracking, and class scheduling.
 
 ## Development Commands
 
@@ -59,8 +59,16 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 
 **Controllers**:
 - `app/Http/Controllers/Reports/DailyReportController.php` - Report generation endpoints
+- `app/Http/Controllers/StudentController.php` - Student management with pricing and payment tracking
+- `app/Http/Controllers/ClassScheduleController.php` - Class scheduling with duration and payment calculations
 - Authentication controllers in `app/Http/Controllers/Auth/`
 - Settings controllers in `app/Http/Controllers/Settings/`
+
+**Student & Schedule Management System**:
+- Student management (`resources/js/pages/Students/` directory)
+- Class schedule management (`resources/js/pages/Schedules/` directory)
+- Calendar integration (`resources/js/pages/calendar/index.tsx`)
+- Dashboard with payment tracking (`resources/js/pages/dashboard.tsx`)
 
 ### Key Architectural Patterns
 
@@ -140,8 +148,44 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 - **Grammar Display**: Use "Wrong: X | Right: Y" format for proper grammar error corrections
 - **File Processing**: Large PDFs may timeout - OpenAI timeout is set to 60 seconds
 
+## Student & Schedule Management Features
+
+### Database Schema
+- **Students Table**: Contains student information, pricing per hour, payment due amounts
+- **Class Schedules Table**: Tracks scheduled classes with duration, start/end times, and payment calculations
+- **Migrations**: 
+  - `2025_08_14_075014_add_pricing_fields_to_students_table.php` - Adds pricing and payment fields
+  - `2025_08_14_082106_update_class_schedules_column_names.php` - Updates schedule column structure
+
+### Student Management
+- **Models**: `app/Models/Student.php` - Eloquent model with pricing relationships
+- **Pages**: 
+  - Create: `resources/js/pages/Students/CreateStudentPage.tsx`
+  - Edit: `resources/js/pages/Students/EditStudentPage.tsx`
+  - Detail: `resources/js/pages/Students/StudentDetailPage.tsx`
+- **Features**: Student profiles, pricing per hour, payment tracking, contact information
+
+### Class Schedule Management  
+- **Models**: `app/Models/ClassSchedule.php` - Eloquent model with student relationships
+- **Pages**:
+  - Create: `resources/js/pages/Schedules/CreateSchedulePage.tsx` 
+  - Edit: `resources/js/pages/Schedules/EditSchedulePage.tsx`
+- **Features**: Class scheduling, duration tracking, automatic payment calculations based on hourly rates
+
+### Calendar & Dashboard Integration
+- **Calendar**: `resources/js/pages/calendar/index.tsx` - Visual schedule management with payment status
+- **Dashboard**: `resources/js/pages/dashboard.tsx` - Overview with payment tracking and student metrics
+- **Payment Tracking**: Real-time calculation of payments due based on scheduled class durations and hourly rates
+
+### Key Implementation Notes
+- **Payment Calculations**: Automatically calculated based on class duration × student hourly rate
+- **Date Handling**: Consistent timezone handling across schedule management
+- **UI Components**: Reusable form components for student and schedule management
+- **Data Relationships**: Proper Eloquent relationships between students and class schedules
+
 ### Testing & Quality Assurance
 - **PHP Tests**: Use `php artisan test` or `composer test` 
 - **Code Style**: Run `npm run lint` for TypeScript/React, Laravel Pint handles PHP formatting
 - **Type Checking**: Use `npm run types` to verify TypeScript types
 - **PDF Validation**: Always test PDF generation with various date formats to ensure current year usage
+- **Database**: Run `php artisan migrate` after pulling updates to ensure schema is current

@@ -34,9 +34,20 @@ interface DashboardProps {
     todaysClasses?: ClassSchedule[];
     monthlyCompletedClasses?: number;
     currentMonthName?: string;
+    stats?: {
+        total_students: number;
+        total_classes_today: number;
+        completed_classes_today: number;
+        upcoming_classes_today: number;
+    };
 }
 
-export default function Dashboard({ todaysClasses = [], monthlyCompletedClasses = 0, currentMonthName = '' }: DashboardProps) {
+export default function Dashboard({ 
+    todaysClasses = [], 
+    monthlyCompletedClasses = 0, 
+    currentMonthName = '', 
+    stats 
+}: DashboardProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [calendarData, setCalendarData] = useState<{ [key: string]: ClassSchedule[] }>({});
     
@@ -151,6 +162,7 @@ export default function Dashboard({ todaysClasses = [], monthlyCompletedClasses 
     const goToToday = () => {
         setCurrentDate(new Date());
     };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="SUMMAFLOW - ESL Report Generator" />
@@ -171,8 +183,59 @@ export default function Dashboard({ todaysClasses = [], monthlyCompletedClasses 
                 </div>
 
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Quick Stats Row */}
+                    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                        <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                                    <User className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-lg sm:text-2xl font-bold truncate">{stats?.total_students || 0}</p>
+                                    <p className="text-xs text-gray-600">Total Students</p>
+                                </div>
+                            </div>
+                        </Card>
+                        
+                        <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
+                                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-lg sm:text-2xl font-bold truncate">{monthlyCompletedClasses}</p>
+                                    <p className="text-xs text-gray-600">This Month</p>
+                                </div>
+                            </div>
+                        </Card>
+                        
+                        <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+                                    <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-lg sm:text-2xl font-bold truncate">{stats?.total_classes_today || 0}</p>
+                                    <p className="text-xs text-gray-600">Today's Classes</p>
+                                </div>
+                            </div>
+                        </Card>
+                        
+                        <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-lg sm:text-2xl font-bold truncate">{stats?.upcoming_classes_today || 0}</p>
+                                    <p className="text-xs text-gray-600">Upcoming</p>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
                     {/* Action Cards Grid */}
-                    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
                         <ActionCard
                             title="Daily Summarization"
                             description="Upload individual lesson reports to generate daily progress summaries with personalized homework worksheets"
@@ -198,71 +261,90 @@ export default function Dashboard({ todaysClasses = [], monthlyCompletedClasses 
                         />
                     </div>
 
-                    {/* Dashboard Grid Layout */}
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-                        {/* Today's Classes */}
-                        <div className="lg:col-span-2">
-                            <Card>
+                    {/* Main Content Grid */}
+                    <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
+                        {/* Today's Classes - Takes 2 columns on xl screens */}
+                        <div className="xl:col-span-2">
+                            <Card className="h-full">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <CalendarDays className="h-5 w-5" />
                                         Today's Classes
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="p-4 sm:p-6">
                                     {todaysClasses.length > 0 ? (
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 sm:space-y-4">
                                             {todaysClasses.map((classItem) => (
-                                                <div key={classItem.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-blue-50 rounded-lg gap-3 sm:gap-4">
-                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <User className="h-4 w-4 text-gray-600" />
-                                                            <span className="font-medium">{classItem.student.name}</span>
+                                                <div key={classItem.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 gap-3">
+                                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                            <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                            <Clock className="h-4 w-4" />
-                                                            <span>{formatTime(classItem.start_time)} ({getDurationText(classItem.duration_minutes)})</span>
+                                                        <div className="min-w-0">
+                                                            <p className="font-semibold text-gray-900 truncate">{classItem.student.name}</p>
+                                                            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                                                                <Clock className="h-3 w-3 flex-shrink-0" />
+                                                                <span>{formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}</span>
+                                                            </div>
                                                         </div>
-                                                        <Badge className={`text-xs w-fit ${getStatusBadge(classItem.status)}`}>
-                                                            {classItem.status}
-                                                        </Badge>
                                                     </div>
+                                                    <Badge className={`${getStatusBadge(classItem.status)} border-0 font-medium px-2 sm:px-3 py-1 text-xs flex-shrink-0`}>
+                                                        {classItem.status}
+                                                    </Badge>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-6">
-                                            <CalendarDays className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                                            <h3 className="text-sm font-medium text-gray-900 mb-1">No classes today</h3>
-                                            <p className="text-xs text-gray-600">You have no scheduled classes for today.</p>
+                                        <div className="text-center py-8 sm:py-12">
+                                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <CalendarDays className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
+                                            </div>
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No classes scheduled</h3>
+                                            <p className="text-sm text-gray-600">You have no classes scheduled for today.</p>
                                         </div>
                                     )}
                                 </CardContent>
                             </Card>
                         </div>
 
-                        {/* Completed Classes */}
-                        <div>
-                            <Card>
+                        {/* Monthly Summary Card */}
+                        <div className="xl:col-span-1">
+                            <Card className="h-full">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <CheckCircle className="h-5 w-5 text-green-600" />
-                                        <div className="flex flex-col">
-                                            <span>Completed</span>
-                                            <span className="text-sm font-normal text-gray-600">
-                                                {currentMonthName || new Date().toLocaleDateString('en-US', { month: 'long' })}
-                                            </span>
-                                        </div>
+                                        Monthly Summary
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="text-center">
-                                        <div className="text-3xl font-bold text-green-600 mb-2">
-                                            {monthlyCompletedClasses}
+                                <CardContent className="p-4 sm:p-6">
+                                    <div className="text-center space-y-4">
+                                        <div>
+                                            <div className="text-4xl sm:text-5xl font-bold text-green-600 mb-2">
+                                                {monthlyCompletedClasses}
+                                            </div>
+                                            <p className="text-gray-600 font-medium">
+                                                {monthlyCompletedClasses === 1 ? 'Class' : 'Classes'} Completed
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">
+                                                in {currentMonthName || new Date().toLocaleDateString('en-US', { month: 'long' })}
+                                            </p>
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            {monthlyCompletedClasses === 1 ? 'class completed' : 'classes completed'}
-                                        </p>
+                                        
+                                        <div className="pt-4 border-t border-gray-100 space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs sm:text-sm text-gray-600">Today's Progress</span>
+                                                <span className="text-xs sm:text-sm font-semibold">{stats?.completed_classes_today || 0}/{stats?.total_classes_today || 0}</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                <div 
+                                                    className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                                                    style={{ 
+                                                        width: `${((stats?.completed_classes_today || 0) / Math.max(stats?.total_classes_today || 1, 1)) * 100}%` 
+                                                    }}
+                                                ></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -290,7 +372,7 @@ export default function Dashboard({ todaysClasses = [], monthlyCompletedClasses 
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-0 sm:p-6">
                             <div className="space-y-0 overflow-x-auto">
                                 {/* Calendar Headers */}
                                 <div className="grid grid-cols-7 border-b min-w-[280px]">

@@ -56,6 +56,11 @@ class DashboardController extends Controller
                 return \Carbon\Carbon::parse($class->class_date)->format('Y-m-d');
             });
             
+        // Get monthly completed classes count
+        $monthlyCompletedClasses = ClassSchedule::whereBetween('class_date', [$startOfMonth, $endOfMonth])
+            ->where('status', 'completed')
+            ->count();
+            
         // Get statistics
         $stats = [
             'total_students' => Student::count(),
@@ -69,6 +74,8 @@ class DashboardController extends Controller
             'nextClass' => $nextClass,
             'todaysClasses' => $todaysClasses,
             'monthlyClasses' => $monthlyClasses,
+            'monthlyCompletedClasses' => $monthlyCompletedClasses,
+            'currentMonthName' => $currentTime->format('F'),
             'stats' => $stats,
             'currentMonth' => $currentTime->format('Y-m'),
         ]);
