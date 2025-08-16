@@ -17,8 +17,8 @@ export function ActionCard({ title, description, href, icon: IconComponent, emoj
             href={href}
             className="group relative block transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] focus:outline-none"
         >
-            <Card className="relative h-full min-h-[300px] overflow-hidden border border-gray-200 bg-white hover:bg-gradient-to-br hover:from-white hover:to-[#f8fafc] transition-all duration-300 shadow-sm hover:shadow-lg hover:border-[#2563eb]/30">
-                <CardContent className="flex flex-col items-center justify-between h-full p-6 text-center">
+            <Card className="relative h-[400px] w-full overflow-hidden border border-gray-200 bg-white hover:bg-gradient-to-br hover:from-white hover:to-[#f8fafc] transition-all duration-300 shadow-sm hover:shadow-lg hover:border-[#2563eb]/30">
+                <CardContent className="flex flex-col h-full p-6 text-center">
                     {/* Icon Section */}
                     <div className="flex justify-center items-center space-x-3 mb-6">
                         <span className="text-3xl sm:text-4xl" role="img" aria-label={title}>
@@ -31,7 +31,7 @@ export function ActionCard({ title, description, href, icon: IconComponent, emoj
                     </div>
                     
                     {/* Content Section */}
-                    <div className="flex-1 space-y-4">
+                    <div className="flex-1 flex flex-col justify-center space-y-4">
                         <h3 className="text-lg sm:text-xl font-semibold text-gray-800 line-clamp-2">
                             {title}
                         </h3>
@@ -41,7 +41,7 @@ export function ActionCard({ title, description, href, icon: IconComponent, emoj
                     </div>
                     
                     {/* Action Button */}
-                    <div className="mt-6 pt-2 w-full">
+                    <div className="mt-6 w-full">
                         <span className="inline-flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-[#2563eb] to-[#60a5fa] text-white text-sm font-medium rounded-lg group-hover:from-[#1d4ed8] group-hover:to-[#3b82f6] transition-all duration-300 shadow-sm hover:shadow-md">
                             Get Started
                             <Icon
