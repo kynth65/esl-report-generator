@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, Head } from '@inertiajs/react';
 import { ArrowLeft, Edit, Trash2, Calendar, Clock, Plus, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
 import { useState } from 'react';
 
@@ -91,33 +91,49 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
             { title: 'Students', href: '/students' },
             { title: student.name, href: `/students/${student.id}` }
         ]}>
-            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-                <div className="space-y-8">
-                    {/* Header */}
+            <Head title={`${student.name} - SUMMAFLOW`} />
+            <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-white to-[#f8fafc] p-3 sm:p-4 md:p-6 lg:p-8">
+                {/* Header Section */}
+                <div className="text-center mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+                    <div className="space-y-2">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#2563eb] to-[#60a5fa] bg-clip-text text-transparent tracking-tight px-2">
+                            SUMMAFLOW
+                        </h1>
+                        <p className="text-sm sm:text-base md:text-lg text-[#2563eb] font-medium max-w-3xl mx-auto px-4">
+                            Student Profile
+                        </p>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
+                        View and manage {student.name}'s profile, classes, and earnings history.
+                    </p>
+                </div>
+
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Back Button and Student Info */}
                     <div className="text-center space-y-6">
                         <div className="flex justify-center">
                             <Link href="/students">
-                                <Button variant="ghost" size="sm" className="mb-4">
+                                <Button variant="ghost" size="sm" className="mb-4 hover:bg-gray-100 transition-colors">
                                     <ArrowLeft className="h-4 w-4 mr-2" />
                                     Back to Students
                                 </Button>
                             </Link>
                         </div>
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">{student.name}</h1>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{student.name}</h2>
                             <Badge className={`text-sm mt-3 ${getGenderBadge(student.gender)}`}>
                                 {student.gender}
                             </Badge>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                             <Link href={`/schedules/create?student_id=${student.id}`}>
-                                <Button variant="outline" className="w-full sm:w-auto h-10">
+                                <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white w-full sm:w-auto h-10 px-4 shadow-lg hover:shadow-xl transition-all duration-200">
                                     <Plus className="h-4 w-4 mr-2" />
                                     Schedule Class
                                 </Button>
                             </Link>
                             <Link href={`/students/${student.id}/edit`}>
-                                <Button variant="outline" className="w-full sm:w-auto h-10">
+                                <Button variant="outline" className="w-full sm:w-auto h-10 hover:bg-gray-50 transition-colors">
                                     <Edit className="h-4 w-4 mr-2" />
                                     Edit
                                 </Button>
@@ -125,7 +141,7 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
                             <Button 
                                 variant="outline" 
                                 onClick={handleDelete}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 w-full sm:w-auto h-10"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 w-full sm:w-auto h-10 transition-colors"
                             >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete
@@ -134,8 +150,8 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
                     </div>
 
                     {/* Student Information */}
-                    <div className="grid gap-8 lg:grid-cols-3 max-w-7xl mx-auto">
-                        <Card className="lg:col-span-2 shadow-md border-0">
+                    <div className="grid gap-6 lg:grid-cols-3">
+                        <Card className="lg:col-span-2 shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
                             <CardHeader className="text-center lg:text-left">
                                 <CardTitle className="text-xl text-gray-900">Student Information</CardTitle>
                             </CardHeader>
@@ -179,7 +195,7 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
                             </CardContent>
                         </Card>
 
-                        <Card className="shadow-md border-0">
+                        <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
                             <CardHeader className="text-center">
                                 <CardTitle className="text-xl text-gray-900">Class Statistics</CardTitle>
                             </CardHeader>
@@ -226,7 +242,7 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
                     </div>
 
                     {/* Classes History */}
-                    <Card className="shadow-md border-0 max-w-7xl mx-auto">
+                    <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
                         <CardHeader className="text-center">
                             <CardTitle className="text-xl text-gray-900">Classes History</CardTitle>
                         </CardHeader>
@@ -239,7 +255,7 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
                                         This student doesn't have any classes scheduled yet.
                                     </p>
                                     <Link href={`/schedules/create?student_id=${student.id}`}>
-                                        <Button className="h-11 px-6">
+                                        <Button className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white h-11 px-6 shadow-lg hover:shadow-xl transition-all duration-200">
                                             <Plus className="h-5 w-5 mr-2" />
                                             Schedule First Class
                                         </Button>
@@ -284,7 +300,7 @@ export default function StudentDetailPage({ student }: StudentDetailPageProps) {
 
                     {/* Weekly Earnings */}
                     {student.price_amount && student.duration_minutes && weeklyEarnings.length > 0 && (
-                        <Card className="shadow-md border-0 max-w-7xl mx-auto">
+                        <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
                             <CardHeader className="text-center">
                                 <CardTitle className="text-xl text-gray-900 flex items-center justify-center gap-2">
                                     <DollarSign className="h-5 w-5 text-green-600" />

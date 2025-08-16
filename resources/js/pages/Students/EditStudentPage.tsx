@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, Head } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 
 interface Student {
@@ -41,28 +41,39 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
             { title: student.name, href: `/students/${student.id}` },
             { title: 'Edit', href: `/students/${student.id}/edit` }
         ]}>
-            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-                <div className="max-w-6xl mx-auto space-y-8">
-                    {/* Header */}
-                    <div className="text-center space-y-4">
-                        <div className="flex justify-center">
-                            <Link href={`/students/${student.id}`}>
-                                <Button variant="ghost" size="sm" className="mb-4">
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    Back to Student
-                                </Button>
-                            </Link>
-                        </div>
-                        <div>
-                            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Edit Student</h1>
-                            <p className="text-gray-600 mt-2 text-base sm:text-lg">Update {student.name}'s information</p>
-                        </div>
+            <Head title={`Edit ${student.name} - SUMMAFLOW`} />
+            <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-white to-[#f8fafc] p-3 sm:p-4 md:p-6 lg:p-8">
+                {/* Header Section */}
+                <div className="text-center mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+                    <div className="space-y-2">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#2563eb] to-[#60a5fa] bg-clip-text text-transparent tracking-tight px-2">
+                            SUMMAFLOW
+                        </h1>
+                        <p className="text-sm sm:text-base md:text-lg text-[#2563eb] font-medium max-w-3xl mx-auto px-4">
+                            Edit Student
+                        </p>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
+                        Update {student.name}'s profile information and class preferences.
+                    </p>
+                </div>
+
+                <div className="max-w-6xl mx-auto space-y-6">
+                    {/* Back Button */}
+                    <div className="flex justify-center">
+                        <Link href={`/students/${student.id}`}>
+                            <Button variant="ghost" size="sm" className="mb-4 hover:bg-gray-100 transition-colors">
+                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                Back to Student
+                            </Button>
+                        </Link>
                     </div>
 
                     {/* Form */}
-                    <Card className="shadow-lg border-0 max-w-4xl mx-auto">
-                        <CardHeader className="text-center pb-6">
-                            <CardTitle className="text-xl sm:text-2xl font-semibold text-gray-900">Student Information</CardTitle>
+                    <Card className="shadow-xl border-0 max-w-4xl mx-auto bg-gradient-to-br from-white to-gray-50">
+                        <CardHeader className="text-center pb-6 bg-gradient-to-r from-[#f8fafc] to-white rounded-t-lg">
+                            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">Student Information</CardTitle>
+                            <p className="text-gray-600 mt-2">Update {student.name}'s profile details</p>
                         </CardHeader>
                         <CardContent className="px-8 sm:px-12 py-8">
                             <form onSubmit={handleSubmit} className="space-y-8">
@@ -163,13 +174,13 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="flex-1 h-12 text-base font-semibold"
+                                        className="flex-1 h-12 text-base font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                     >
                                         <Save className="h-5 w-5 mr-2" />
                                         {processing ? 'Updating...' : 'Update Student'}
                                     </Button>
                                     <Link href={`/students/${student.id}`} className="flex-1 sm:flex-none">
-                                        <Button type="button" variant="outline" className="w-full h-12 text-base">
+                                        <Button type="button" variant="outline" className="w-full h-12 text-base hover:bg-gray-50 transition-colors">
                                             Cancel
                                         </Button>
                                     </Link>
