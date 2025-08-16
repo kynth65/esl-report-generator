@@ -1,5 +1,27 @@
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
+
+interface AnimatedElementProps {
+    children: React.ReactNode;
+    className?: string;
+    direction?: 'up' | 'left' | 'right';
+    delay?: number;
+}
+
+function AnimatedElement({ children, className = '', direction = 'up', delay = 0 }: AnimatedElementProps) {
+    const { elementRef, isVisible } = useScrollAnimation({ threshold: 0.1 });
+
+    const directionClass = direction === 'left' ? 'animate-on-scroll-left' : direction === 'right' ? 'animate-on-scroll-right' : 'animate-on-scroll';
+
+    const delayClass = delay > 0 ? `animate-delay-${delay}` : '';
+
+    return (
+        <div ref={elementRef} className={`${directionClass} ${delayClass} ${isVisible ? 'animate-visible' : ''} ${className}`}>
+            {children}
+        </div>
+    );
+}
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
@@ -7,379 +29,789 @@ export default function Welcome() {
     return (
         <>
             <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
+                <style>{`
+                    
+                    html {
+                      scroll-behavior: smooth;
+                    }
+
+                    @keyframes fadeInUp {
+                      from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                      }
+                      to {
+                        opacity: 1;
+                        transform: translateY(0);
+                      }
+                    }
+
+                    @keyframes fadeInLeft {
+                      from {
+                        opacity: 0;
+                        transform: translateX(-30px);
+                      }
+                      to {
+                        opacity: 1;
+                        transform: translateX(0);
+                      }
+                    }
+
+                    @keyframes fadeInRight {
+                      from {
+                        opacity: 0;
+                        transform: translateX(30px);
+                      }
+                      to {
+                        opacity: 1;
+                        transform: translateX(0);
+                      }
+                    }
+
+                    .animate-on-scroll {
+                      opacity: 0;
+                      transform: translateY(30px);
+                      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                    }
+
+                    .animate-on-scroll-left {
+                      opacity: 0;
+                      transform: translateX(-30px);
+                      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                    }
+
+                    .animate-on-scroll-right {
+                      opacity: 0;
+                      transform: translateX(30px);
+                      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                    }
+
+                    .animate-visible {
+                      opacity: 1;
+                      transform: translate(0, 0);
+                    }
+
+                    .animate-delay-200 {
+                      transition-delay: 200ms;
+                    }
+
+                    .animate-delay-400 {
+                      transition-delay: 400ms;
+                    }
+
+                    .animate-delay-600 {
+                      transition-delay: 600ms;
+                    }
+
+                    .animate-delay-800 {
+                      transition-delay: 800ms;
+                    }
+
+                    .animate-delay-1000 {
+                      transition-delay: 1000ms;
+                    }
+
+                    .animate-delay-1200 {
+                      transition-delay: 1200ms;
+                    }
+
+                
+                `}</style>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
                 <link
-                    href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900|space-grotesk:300,400,500,600,700"
+                    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Libre+Baskerville:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
                     rel="stylesheet"
                 />
             </Head>
-            <div className="relative min-h-screen overflow-hidden bg-white dark:bg-gray-900">
-                {/* Clean minimal background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800"></div>
-                <div className="absolute top-20 left-10 h-64 w-64 rounded-full bg-blue-100/40 blur-3xl dark:bg-blue-900/20"></div>
-                <div className="absolute bottom-20 right-10 h-64 w-64 rounded-full bg-green-100/40 blur-3xl dark:bg-green-900/20"></div>
+
+            {/* Full dark background with subtle gradients */}
+            <div className="relative min-h-screen bg-background text-foreground">
+                {/* Symmetrical background gradient rectangles */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-100 to-slate-50"></div>
+                <div className="absolute top-32 right-32 h-96 w-48 rounded-3xl bg-primary/8 blur-3xl"></div>
+                <div className="absolute top-96 left-32 h-80 w-40 rounded-3xl bg-blue-500/12 blur-3xl"></div>
+                <div className="absolute top-[600px] right-24 h-72 w-36 rounded-3xl bg-primary/6 blur-3xl"></div>
+                <div className="absolute top-[900px] left-24 h-64 w-32 rounded-3xl bg-blue-500/10 blur-3xl"></div>
+                <div className="absolute top-[1200px] right-32 h-88 w-44 rounded-3xl bg-primary/7 blur-3xl"></div>
+                <div className="absolute top-[1500px] left-24 h-96 w-48 rounded-3xl bg-blue-500/12 blur-3xl"></div>
+                <div className="absolute top-[1800px] right-1/4 h-80 w-40 rounded-3xl bg-primary/6 blur-3xl"></div>
+                <div className="absolute bottom-32 left-32 h-96 w-48 rounded-3xl bg-blue-500/9 blur-3xl"></div>
+
                 <div className="relative z-10">
                     {/* Navigation */}
-                    <nav className="sticky top-0 z-50 flex items-center justify-between bg-white/95 px-6 py-6 backdrop-blur-sm border-b border-gray-100 lg:px-12 dark:bg-gray-900/95 dark:border-gray-800">
-                        <div
-                            className="text-2xl font-bold text-blue-600 dark:text-blue-400"
-                            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-                        >
-                            SUMMAFLOW
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <a
-                                href="#process"
-                                className="text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-                            >
-                                How It Works
-                            </a>
-                            <a
-                                href="#services"
-                                className="text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-                            >
-                                Services
-                            </a>
-                            {auth.user ? (
-                                <Link
-                                    href={route('dashboard')}
-                                    className="rounded-full bg-gray-900 px-5 py-2 text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <>
+                    <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
+                            <div className="text-2xl font-bold text-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                ESL Report Generator
+                            </div>
+                            <div className="hidden items-center gap-8 md:flex">
+                                <a href="#features" className="text-muted-foreground transition-colors hover:text-foreground">
+                                    Features
+                                </a>
+                                <a href="#process" className="text-muted-foreground transition-colors hover:text-foreground">
+                                    How it works
+                                </a>
+                                <a href="#testimonials" className="text-muted-foreground transition-colors hover:text-foreground">
+                                    Testimonials
+                                </a>
+                                <a href="#pricing" className="text-muted-foreground transition-colors hover:text-foreground">
+                                    Pricing
+                                </a>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                {auth.user ? (
                                     <Link
-                                        href={route('login')}
-                                        className="text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                                        href={route('dashboard')}
+                                        className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-all hover:scale-105 hover:bg-primary/90"
                                     >
-                                        Log in
+                                        Dashboard
                                     </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="rounded-full bg-gray-900 px-5 py-2 text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-                                    >
-                                        Register
-                                    </Link>
-                                </>
-                            )}
+                                ) : (
+                                    <>
+                                        <Link href={route('login')} className="text-muted-foreground transition-colors hover:text-foreground">
+                                            Sign in
+                                        </Link>
+                                        <Link
+                                            href={route('register')}
+                                            className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground transition-all hover:scale-105 hover:bg-primary/90"
+                                        >
+                                            Sign Up
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </nav>
 
                     {/* Hero Section */}
-                    <main className="flex flex-1 items-center justify-center px-6 py-24 lg:px-12">
-                        <div className="mx-auto max-w-5xl text-center">
-                            <div className="space-y-16">
-                                <div className="space-y-8">
-                                    <h1
-                                        className="text-5xl leading-tight font-bold tracking-tight lg:text-7xl"
-                                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-                                    >
-                                        <span className="text-gray-900 dark:text-white">Intelligent</span>
-                                        <br />
-                                        <span className="text-blue-600 dark:text-blue-400">ESL Report</span>
-                                        <br />
-                                        <span className="text-gray-700 dark:text-gray-300">Summarization</span>
-                                    </h1>
-                                    <div className="flex justify-center">
-                                        <div className="h-1 w-24 bg-gradient-to-r from-blue-600 to-green-500 rounded-full"></div>
-                                    </div>
-                                </div>
-                                <p
-                                    className="mx-auto max-w-3xl text-xl leading-relaxed text-gray-600 lg:text-2xl dark:text-gray-400"
-                                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    <section className="relative px-6 py-32 text-center lg:px-8 lg:py-40">
+                        <div className="mx-auto max-w-5xl">
+                            {/* Section Label */}
+                            <AnimatedElement className="mb-8">
+                                <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground">
+                                    AI-POWERED ESL MANAGEMENT
+                                </span>
+                            </AnimatedElement>
+
+                            {/* Hero Title */}
+                            <AnimatedElement delay={200}>
+                                <h1
+                                    className="mb-8 text-5xl leading-tight font-bold tracking-tight lg:text-7xl"
+                                    style={{ fontFamily: 'Poppins, sans-serif' }}
                                 >
-                                    Transform your ESL teaching documentation with AI-powered analysis.
-                                    <br className="hidden sm:block" />
-                                    Create professional reports in minutes, not hours.
+                                    Transform <span className="text-primary">ESL Teaching</span>,<br />
+                                    Manage <span className="text-accent">Students & Reports</span>
+                                </h1>
+                            </AnimatedElement>
+
+                            {/* Hero Subtitle */}
+                            <AnimatedElement delay={400}>
+                                <p
+                                    className="mx-auto mb-12 max-w-3xl text-xl leading-relaxed text-muted-foreground lg:text-2xl"
+                                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                                >
+                                    Comprehensive ESL management system featuring AI-powered report generation, student management, class scheduling,
+                                    and payment tracking - all in one platform.
                                 </p>
-                                <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-                                    <Link
-                                        href={auth.user ? route('dashboard') : route('register')}
-                                        className="group relative rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 hover:shadow-md focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
-                                    >
-                                        <span className="relative z-10">{auth.user ? 'Go to Dashboard' : 'Get Started'}</span>
-                                    </Link>
+                            </AnimatedElement>
 
-                                    {!auth.user && (
-                                        <Link
-                                            href={route('login')}
-                                            className="rounded-xl border border-gray-300 px-8 py-4 font-medium text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-                                        >
-                                            Sign In
-                                        </Link>
-                                    )}
-                                </div>
+                            {/* CTA Buttons */}
+                            <AnimatedElement delay={600} className="mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+                                <Link
+                                    href={auth.user ? route('dashboard') : route('register')}
+                                    className="group rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-sm transition-all hover:scale-105 hover:bg-primary/90 hover:shadow-lg"
+                                >
+                                    {auth.user ? 'Go to Dashboard' : 'Get Started for Free'}
+                                </Link>
+                                <Link
+                                    href={route('login')}
+                                    className="rounded-full border border-border bg-card px-8 py-4 text-lg font-medium text-foreground transition-all hover:scale-105 hover:bg-muted"
+                                >
+                                    {auth.user ? 'View Features' : 'Sign In'}
+                                </Link>
+                            </AnimatedElement>
 
-                                <div className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-3">
-                                    <div className="group text-center p-6 rounded-2xl border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-gray-200 dark:border-gray-800 dark:bg-gray-800/50 dark:hover:border-gray-700">
-                                        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600">
-                                            <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Daily Reports</h3>
-                                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                            Generate comprehensive daily summaries of student progress and learning activities
-                                        </p>
-                                    </div>
-
-                                    <div className="group text-center p-6 rounded-2xl border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-gray-200 dark:border-gray-800 dark:bg-gray-800/50 dark:hover:border-gray-700">
-                                        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500">
-                                            <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Monthly Analysis</h3>
-                                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                            Compare performance across periods and track long-term learning trends
-                                        </p>
-                                    </div>
-
-                                    <div className="group text-center p-6 rounded-2xl border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-gray-200 dark:border-gray-800 dark:bg-gray-800/50 dark:hover:border-gray-700">
-                                        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-green-500">
-                                            <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-                                            </svg>
-                                        </div>
-                                        <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">AI Powered</h3>
-                                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                            Leverage advanced AI to generate insightful and accurate educational reports
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                    {/* Process Section */}
-                    <section id="process" className="bg-gray-50/50 px-6 py-24 lg:px-12 dark:bg-gray-800/30">
-                        <div className="mx-auto max-w-6xl">
-                            <div className="mb-16 text-center">
-                                <h2 className="mb-4 text-3xl font-bold lg:text-5xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    <span className="text-gray-900 dark:text-white">How It</span>{' '}
-                                    <span className="text-blue-600 dark:text-blue-400">Works</span>
-                                </h2>
-                                <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                    Three simple steps to transform your ESL teaching documentation
+                            {/* Trust Indicators */}
+                            <AnimatedElement delay={800} className="text-center">
+                                <p className="mb-8 text-sm font-medium tracking-wider text-muted-foreground uppercase">
+                                    Complete ESL Management Solution
                                 </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-                                <div className="group text-center">
-                                    <div className="relative mb-8">
-                                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 shadow-sm transition-all duration-200 group-hover:shadow-md">
-                                            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                                            </svg>
-                                        </div>
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
-                                            01
-                                        </div>
-                                    </div>
-                                    <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                        Upload Documents
-                                    </h3>
-                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                        Simply upload your PDF teaching reports through our intuitive interface
-                                    </p>
+                                <div className="flex items-center justify-center gap-8 opacity-60">
+                                    <div className="text-lg font-semibold">Report Generation</div>
+                                    <div className="text-lg font-semibold">Student Management</div>
+                                    <div className="text-lg font-semibold">Class Scheduling</div>
                                 </div>
-
-                                <div className="group text-center">
-                                    <div className="relative mb-8">
-                                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500 shadow-sm transition-all duration-200 group-hover:shadow-md">
-                                            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-                                            </svg>
-                                        </div>
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-lg bg-blue-500 px-3 py-1 text-xs font-semibold text-white">
-                                            02
-                                        </div>
-                                    </div>
-                                    <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                        AI Analysis
-                                    </h3>
-                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                        Advanced AI analyzes your content and extracts meaningful insights and patterns
-                                    </p>
-                                </div>
-
-                                <div className="group text-center">
-                                    <div className="relative mb-8">
-                                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500 shadow-sm transition-all duration-200 group-hover:shadow-md">
-                                            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                            </svg>
-                                        </div>
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-lg bg-green-500 px-3 py-1 text-xs font-semibold text-white">
-                                            03
-                                        </div>
-                                    </div>
-                                    <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                        Download Reports
-                                    </h3>
-                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                        Receive professionally formatted reports ready to share with stakeholders
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Services Section */}
-                    <section id="services" className="px-6 py-24 lg:px-12">
-                        <div className="mx-auto max-w-6xl">
-                            <div className="mb-16 text-center">
-                                <h2 className="mb-4 text-3xl font-bold lg:text-5xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    <span className="text-gray-900 dark:text-white">Our</span>{' '}
-                                    <span className="text-blue-600 dark:text-blue-400">Services</span>
-                                </h2>
-                                <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                    Comprehensive reporting solutions designed for ESL educators
-                                </p>
-                            </div>
-
-                            <div className="space-y-8">
-                                <div className="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-sm transition-all duration-200 hover:shadow-md dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="flex items-start gap-6">
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600">
-                                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                                Daily Summarization
-                                            </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                                Generate comprehensive daily summaries that capture student progress, learning objectives achieved, and areas for improvement.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-sm transition-all duration-200 hover:shadow-md dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="flex items-start gap-6">
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-500">
-                                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                                Monthly Analysis
-                                            </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                                Track long-term progress with detailed monthly reports that highlight trends, achievements, and development patterns.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-sm transition-all duration-200 hover:shadow-md dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="flex items-start gap-6">
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-500">
-                                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                                Comparison Reports
-                                            </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                                Compare performance across different time periods to identify growth patterns and areas needing attention.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </AnimatedElement>
                         </div>
                     </section>
 
                     {/* Features Section */}
-                    <section className="bg-gray-50/50 px-6 py-24 lg:px-12 dark:bg-gray-800/30">
-                        <div className="mx-auto max-w-6xl">
+                    <section id="features" className="px-6 py-24 lg:px-8">
+                        <div className="mx-auto max-w-7xl">
+                            {/* Section Header */}
                             <div className="mb-16 text-center">
-                                <h2 className="mb-4 text-3xl font-bold lg:text-5xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    <span className="text-gray-900 dark:text-white">Why Choose</span>{' '}
-                                    <span className="text-blue-600 dark:text-blue-400">SUMMAFLOW</span>
-                                </h2>
-                                <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                    Built specifically for ESL educators with simplicity and effectiveness in mind
-                                </p>
+                                <AnimatedElement className="mb-4">
+                                    <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground">
+                                        FEATURES
+                                    </span>
+                                </AnimatedElement>
+                                <AnimatedElement delay={200}>
+                                    <h2 className="mb-6 text-4xl font-bold lg:text-6xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        Why Choose our <span className="text-primary">Platform?</span>
+                                    </h2>
+                                </AnimatedElement>
+                                <AnimatedElement delay={400}>
+                                    <p className="mx-auto max-w-3xl text-xl text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        Complete ESL management solution with AI-powered reports, student tracking, and class scheduling
+                                    </p>
+                                </AnimatedElement>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="rounded-xl border border-gray-100 bg-white/80 p-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-                                        </svg>
+                            {/* Feature Grid */}
+                            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                                {/* Daily Reports */}
+                                <AnimatedElement delay={600}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+                                            <svg
+                                                className="h-6 w-6 text-primary-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">AI-Powered Report Generation</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Generate Daily, Monthly, and Comparison reports using OpenAI integration. Upload PDFs and get
+                                            comprehensive analysis with homework exercises and progress tracking.
+                                        </p>
                                     </div>
-                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Smart AI Analysis</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">AI understands educational context and student progress patterns</p>
-                                </div>
+                                </AnimatedElement>
 
-                                <div className="rounded-xl border border-gray-100 bg-white/80 p-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75-7.478V8.25m0 0a3 3 0 00-3-3V3m3 2.25V3m-3 1.5V1.5" />
-                                        </svg>
+                                {/* Monthly Analysis */}
+                                <AnimatedElement delay={800}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2">
+                                            <svg
+                                                className="h-6 w-6 text-primary-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">Student Management System</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Complete student database with pricing per hour, payment tracking, contact information, and detailed
+                                            profiles for effective management.
+                                        </p>
                                     </div>
-                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Lightning Fast</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">Generate comprehensive reports in minutes, not hours</p>
-                                </div>
+                                </AnimatedElement>
 
-                                <div className="rounded-xl border border-gray-100 bg-white/80 p-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                                        </svg>
+                                {/* Real-Time Processing */}
+                                <AnimatedElement delay={1000}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-4">
+                                            <svg
+                                                className="h-6 w-6 text-primary-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">Class Schedule Management</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Schedule classes with automatic payment calculations, duration tracking, and calendar integration for
+                                            seamless lesson planning.
+                                        </p>
                                     </div>
-                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Secure & Private</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">Your data is encrypted and follows strict protection standards</p>
-                                </div>
+                                </AnimatedElement>
 
-                                <div className="rounded-xl border border-gray-100 bg-white/80 p-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-800/80">
-                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-                                        </svg>
+                                {/* Smart Analysis */}
+                                <AnimatedElement delay={1200}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
+                                            <svg
+                                                className="h-6 w-6 text-accent-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.611L5 14.5"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">Dashboard & Analytics</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Visual dashboard with payment tracking, student metrics, and comprehensive overview of your ESL teaching
+                                            business.
+                                        </p>
                                     </div>
-                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Education Focused</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">Designed specifically for ESL educators and learning contexts</p>
-                                </div>
+                                </AnimatedElement>
+
+                                {/* Secure Storage */}
+                                <AnimatedElement delay={800}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-5">
+                                            <svg
+                                                className="h-6 w-6 text-primary-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">PDF Processing & Generation</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Upload and analyze PDF documents, extract lesson content, and generate professional PDF reports with
+                                            proper formatting and styling.
+                                        </p>
+                                    </div>
+                                </AnimatedElement>
+
+                                {/* Easy Integration */}
+                                <AnimatedElement delay={1000}>
+                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3">
+                                            <svg
+                                                className="h-6 w-6 text-primary-foreground"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mb-4 text-xl font-semibold">Built with Modern Tech</h3>
+                                        <p className="leading-relaxed text-muted-foreground">
+                                            Laravel + React architecture with TypeScript, Tailwind CSS, and SQLite database for reliable and scalable
+                                            performance.
+                                        </p>
+                                    </div>
+                                </AnimatedElement>
                             </div>
                         </div>
                     </section>
 
+                    {/* How It Works Section */}
+                    <section id="process" className="px-6 py-24 lg:px-8">
+                        <div className="mx-auto max-w-7xl">
+                            {/* Section Header */}
+                            <div className="mb-16 text-center">
+                                <AnimatedElement className="mb-4">
+                                    <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground">
+                                        HOW TO USE?
+                                    </span>
+                                </AnimatedElement>
+                                <AnimatedElement delay={200}>
+                                    <h2 className="mb-6 text-4xl font-bold lg:text-6xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        How it <span className="text-primary">works?</span>
+                                    </h2>
+                                </AnimatedElement>
+                                <AnimatedElement delay={400}>
+                                    <p className="mx-auto max-w-3xl text-xl text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        Simple workflow to streamline your ESL teaching and management
+                                    </p>
+                                </AnimatedElement>
+                            </div>
 
-                    {/* CTA Section */}
-                    <section className="bg-blue-600 px-6 py-20 text-white lg:px-12">
+                            {/* Steps Grid */}
+                            <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
+                                {/* Step 1 */}
+                                <AnimatedElement direction="left" delay={600}>
+                                    <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+                                        <div className="mb-8">
+                                            <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-primary">
+                                                STEP 1
+                                            </span>
+                                        </div>
+                                        <h3 className="mb-6 text-3xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                            Upload & Analyze
+                                        </h3>
+                                        <p className="mb-8 max-w-md text-lg text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                            Upload PDF lesson materials and let our AI analyze content to generate comprehensive reports with insights
+                                            and homework.
+                                        </p>
+                                        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                                            <div className="mb-4 flex items-center gap-3">
+                                                <div className="h-2 w-2 rounded-full bg-primary"></div>
+                                                <div className="h-2 w-2 rounded-full bg-primary/50"></div>
+                                                <div className="h-2 w-2 rounded-full bg-muted"></div>
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="mb-2 text-lg font-semibold">PDF Upload</div>
+                                                <div className="text-sm text-muted-foreground">Drag & drop lesson materials</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedElement>
+
+                                {/* Step 2 */}
+                                <AnimatedElement direction="right" delay={800}>
+                                    <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+                                        <div className="mb-8">
+                                            <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-primary">
+                                                STEP 2
+                                            </span>
+                                        </div>
+                                        <h3 className="mb-6 text-3xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                            Manage & Schedule
+                                        </h3>
+                                        <p className="mb-8 max-w-md text-lg text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                            Manage student profiles, schedule classes, track payments, and maintain comprehensive records all in one
+                                            place.
+                                        </p>
+                                        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                                            <div className="mb-4 flex items-center justify-between">
+                                                <div className="text-sm font-medium">Student Dashboard</div>
+                                                <div className="flex gap-2">
+                                                    <button className="rounded bg-muted px-3 py-1 text-xs">Schedule</button>
+                                                    <button className="rounded bg-primary px-3 py-1 text-xs text-primary-foreground">Payment</button>
+                                                </div>
+                                            </div>
+                                            <div className="text-left text-sm text-muted-foreground">
+                                                Track student progress, payments, and schedule management.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedElement>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Testimonials Section */}
+                    <section id="testimonials" className="px-6 py-24 lg:px-8">
+                        <div className="mx-auto max-w-7xl">
+                            {/* Section Header */}
+                            <div className="mb-16 text-center">
+                                <div className="mb-4">
+                                    <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground">
+                                        TESTIMONIALS
+                                    </span>
+                                </div>
+                                <h2 className="mb-6 text-4xl font-bold lg:text-6xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                    What Our <span className="text-primary">Users Say</span>
+                                </h2>
+                            </div>
+
+                            {/* Testimonials Grid */}
+                            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                                <AnimatedElement delay={400}>
+                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 text-lg leading-relaxed">
+                                            "ESL Report Generator transformed my teaching workflow! The AI-powered reports save hours of work, and
+                                            student management is incredibly efficient. Highly recommend!"
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-primary/20"></div>
+                                            <div>
+                                                <div className="font-semibold">Sarah Chen</div>
+                                                <div className="text-sm text-muted-foreground">EduTech Institute</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedElement>
+
+                                <AnimatedElement delay={600}>
+                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 text-lg leading-relaxed">
+                                            "The class scheduling and payment tracking features are game-changers. Managing my ESL students has never
+                                            been this organized and professional."
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-chart-2/20"></div>
+                                            <div>
+                                                <div className="font-semibold">Michael Rodriguez</div>
+                                                <div className="text-sm text-muted-foreground">Language Academy</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedElement>
+
+                                <AnimatedElement delay={800}>
+                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 text-lg leading-relaxed">
+                                            "The PDF analysis and report generation is amazing! Upload lesson materials and get comprehensive reports
+                                            with homework exercises. Perfect for ESL educators."
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-chart-4/20"></div>
+                                            <div>
+                                                <div className="font-semibold">Emma Thompson</div>
+                                                <div className="text-sm text-muted-foreground">Global ESL Center</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AnimatedElement>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Pricing Section */}
+                    <section id="pricing" className="px-6 py-24 lg:px-8">
+                        <div className="mx-auto max-w-7xl">
+                            {/* Section Header */}
+                            <div className="mb-16 text-center">
+                                <AnimatedElement className="mb-4">
+                                    <span className="inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground">
+                                        PRICINGS
+                                    </span>
+                                </AnimatedElement>
+                                <AnimatedElement delay={200}>
+                                    <h2 className="mb-6 text-4xl font-bold lg:text-6xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        Choose a Plan That Suits Your <span className="text-primary">Teaching</span>
+                                    </h2>
+                                </AnimatedElement>
+                                <AnimatedElement delay={400}>
+                                    <p className="mb-8 text-xl text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                        Flexible pricing for ESL educators and institutions
+                                    </p>
+                                </AnimatedElement>
+
+                                {/* Billing Toggle */}
+                                <AnimatedElement delay={600} className="flex items-center justify-center gap-4">
+                                    <span className="text-muted-foreground">Monthly</span>
+                                    <div className="relative">
+                                        <input type="checkbox" className="sr-only" />
+                                        <div className="h-6 w-11 rounded-full border border-border bg-muted"></div>
+                                        <div className="absolute top-1 left-1 h-4 w-4 rounded-full bg-primary transition-transform"></div>
+                                    </div>
+                                    <span>Yearly</span>
+                                </AnimatedElement>
+                            </div>
+
+                            {/* Pricing Grid */}
+                            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                                {/* Basic Plan */}
+                                <AnimatedElement delay={800}>
+                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                        <h3 className="mb-2 text-2xl font-bold">Individual Educator</h3>
+                                        <p className="mb-6 text-muted-foreground">Perfect for individual ESL teachers starting out.</p>
+                                        <div className="mb-8">
+                                            <span className="text-4xl font-bold">$0</span>
+                                            <span className="text-muted-foreground">/Month</span>
+                                        </div>
+                                        <button className="mb-8 w-full rounded-full border border-border bg-background py-3 font-medium transition-colors hover:bg-muted">
+                                            Get Started for Free
+                                        </button>
+                                        <ul className="space-y-3 text-sm">
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Up to 20 students</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Daily report generation</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Basic scheduling</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </AnimatedElement>
+
+                                {/* Pro Plan */}
+                                <AnimatedElement delay={1000}>
+                                    <div className="relative rounded-2xl border-2 border-primary bg-card p-8">
+                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-medium text-primary-foreground">
+                                            Most Popular
+                                        </div>
+                                        <h3 className="mb-2 text-2xl font-bold">Professional Teacher</h3>
+                                        <p className="mb-6 text-muted-foreground">For established ESL educators with larger student bases.</p>
+                                        <div className="mb-8">
+                                            <span className="text-4xl font-bold">$19.99</span>
+                                            <span className="text-muted-foreground">/Month</span>
+                                        </div>
+                                        <button className="mb-8 w-full rounded-full bg-primary py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                                            Get Started
+                                        </button>
+                                        <ul className="space-y-3 text-sm">
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Up to 100 students</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>All report types</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Payment tracking</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Calendar integration</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </AnimatedElement>
+
+                                {/* Enterprise Plan */}
+                                <AnimatedElement delay={1200}>
+                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                        <h3 className="mb-2 text-2xl font-bold">Language School</h3>
+                                        <p className="mb-6 text-muted-foreground">For ESL institutions and language schools.</p>
+                                        <div className="mb-8">
+                                            <span className="text-4xl font-bold">$39.99</span>
+                                            <span className="text-muted-foreground">/Month</span>
+                                        </div>
+                                        <button className="mb-8 w-full rounded-full border border-border bg-background py-3 font-medium transition-colors hover:bg-muted">
+                                            Get Started
+                                        </button>
+                                        <ul className="space-y-3 text-sm">
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Unlimited students</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Multi-teacher access</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Advanced analytics</span>
+                                            </li>
+                                            <li className="flex items-center gap-3">
+                                                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <span>Priority support</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </AnimatedElement>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Final CTA Section */}
+                    <section className="px-6 py-24 lg:px-8">
                         <div className="mx-auto max-w-4xl text-center">
-                            <h2 className="mb-6 text-3xl font-bold lg:text-5xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                Ready to Transform Your ESL Reporting?
-                            </h2>
-                            <p className="mb-8 text-lg opacity-90 lg:text-xl" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                Join educators who are already saving time with SUMMAFLOW's AI-powered platform.
-                            </p>
-                            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+                            <AnimatedElement>
+                                <h2 className="mb-6 text-4xl font-bold lg:text-6xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                    Get Started Today
+                                </h2>
+                            </AnimatedElement>
+                            <AnimatedElement delay={200}>
+                                <p className="mb-12 text-xl text-muted-foreground lg:text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                    Ready to streamline your ESL teaching? Join educators using our comprehensive management platform.
+                                </p>
+                            </AnimatedElement>
+                            <AnimatedElement delay={400} className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
                                 <Link
                                     href={auth.user ? route('dashboard') : route('register')}
-                                    className="rounded-xl bg-white px-8 py-4 font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:bg-gray-50"
-                                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                                    className="rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:scale-105 hover:bg-primary/90"
                                 >
-                                    {auth.user ? 'Go to Dashboard' : 'Get Started'}
+                                    {auth.user ? 'Go to Dashboard' : 'Start Free Trial'}
                                 </Link>
                                 <Link
-                                    href="#process"
-                                    className="rounded-xl border border-white px-8 py-4 font-medium text-white transition-all duration-200 hover:bg-white hover:text-blue-600"
-                                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                                    href="#features"
+                                    className="rounded-full border border-border bg-card px-8 py-4 text-lg font-medium transition-all hover:scale-105 hover:bg-muted"
                                 >
                                     Learn More
                                 </Link>
-                            </div>
+                            </AnimatedElement>
                         </div>
                     </section>
                 </div>
