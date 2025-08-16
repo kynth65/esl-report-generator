@@ -61,18 +61,39 @@ class DashboardController extends Controller
             ->where('status', 'completed')
             ->count();
             
+        // Get this week's completed classes
+        $startOfWeek = $currentTime->copy()->startOfWeek();
+        $endOfWeek = $currentTime->copy()->endOfWeek();
+        
+        $weeklyCompletedClasses = ClassSchedule::with('student')
+            ->whereBetween('class_date', [$startOfWeek, $endOfWeek])
+            ->where('status', 'completed')
+            ->orderBy('class_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get();
+            
+        // Calculate weekly earnings
+        $weeklyEarnings = $weeklyCompletedClasses->sum(function ($class) {
+            $hourlyRate = $class->student->hourly_rate ?? 0;
+            $durationHours = $class->duration_minutes / 60;
+            return $hourlyRate * $durationHours;
+        });
+        
         // Get statistics
         $stats = [
             'total_students' => Student::count(),
             'total_classes_today' => $todaysClasses->count(),
             'completed_classes_today' => $todaysClasses->where('status', 'completed')->count(),
             'upcoming_classes_today' => $todaysClasses->where('status', 'upcoming')->count(),
+            'weekly_completed_classes' => $weeklyCompletedClasses->count(),
+            'weekly_earnings' => $weeklyEarnings,
         ];
         
         return Inertia::render('dashboard', [
             'currentClass' => $currentClass,
             'nextClass' => $nextClass,
             'todaysClasses' => $todaysClasses,
+            'weeklyCompletedClasses' => $weeklyCompletedClasses,
             'monthlyClasses' => $monthlyClasses,
             'monthlyCompletedClasses' => $monthlyCompletedClasses,
             'currentMonthName' => $currentTime->format('F'),

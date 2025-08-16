@@ -39,8 +39,11 @@ class ClassScheduleController extends Controller
         $students = Student::select('id', 'name', 'price_amount', 'duration_minutes')->orderBy('name')->get();
         
         // Apply student filter to today's classes if filter is set
+        // Ensure we get today's date in the application timezone
+        $today = Carbon::now()->startOfDay()->format('Y-m-d');
+        \Log::info('Today\'s date for calendar: ' . $today); // Debug log to verify correct date
         $todaysQuery = ClassSchedule::with(['student:id,name,price_amount,duration_minutes'])
-            ->where('class_date', Carbon::today()->format('Y-m-d'))
+            ->where('class_date', $today)
             ->orderBy('start_time');
             
         if ($request->has('student_id') && $request->student_id !== 'all' && $request->student_id) {
@@ -50,7 +53,7 @@ class ClassScheduleController extends Controller
         $todaysClasses = $todaysQuery->get();
         
         // Get completed classes for current month (for calendar view)
-        $currentMonth = Carbon::today()->format('Y-m');
+        $currentMonth = Carbon::now()->format('Y-m');
         $monthStart = Carbon::createFromFormat('Y-m', $currentMonth)->startOfMonth();
         $monthEnd = Carbon::createFromFormat('Y-m', $currentMonth)->endOfMonth();
         

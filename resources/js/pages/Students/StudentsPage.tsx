@@ -115,9 +115,9 @@ export default function StudentsPage({ students }: StudentsPageProps) {
                             ) : (
                                 <div className="overflow-x-auto">
                                     {/* Desktop Table View - Hidden on small screens */}
-                                    <div className="hidden md:block">
+                                    <div className="hidden md:block max-h-[600px] overflow-y-auto">
                                         <table className="w-full">
-                                            <thead>
+                                            <thead className="sticky top-0 z-10">
                                                 <tr className="border-b border-gray-200 bg-gray-50">
                                                     <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
                                                         Student
@@ -213,7 +213,7 @@ export default function StudentsPage({ students }: StudentsPageProps) {
                                     </div>
 
                                     {/* Mobile Card View - Shown on small screens */}
-                                    <div className="space-y-3 p-3 md:hidden">
+                                    <div className="max-h-[600px] space-y-3 overflow-y-auto p-3 md:hidden">
                                         {filteredStudents.map((student) => (
                                             <div
                                                 key={student.id}

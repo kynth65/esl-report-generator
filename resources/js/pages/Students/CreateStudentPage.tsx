@@ -70,6 +70,7 @@ export default function CreateStudentPage() {
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
                                             placeholder="Enter student's full name"
+                                            required
                                             className={`h-10 sm:h-12 text-sm sm:text-base ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                                         />
                                         {errors.name && (
@@ -79,7 +80,7 @@ export default function CreateStudentPage() {
 
                                     <div className="space-y-2 sm:space-y-3">
                                         <Label htmlFor="gender" className="text-sm sm:text-base font-semibold text-gray-700">Gender *</Label>
-                                        <Select value={data.gender} onValueChange={(value) => setData('gender', value)}>
+                                        <Select value={data.gender} onValueChange={(value) => setData('gender', value)} required>
                                             <SelectTrigger className={`h-10 sm:h-12 text-sm sm:text-base ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}>
                                                 <SelectValue placeholder="Select gender" />
                                             </SelectTrigger>
@@ -95,7 +96,7 @@ export default function CreateStudentPage() {
                                     </div>
 
                                     <div className="space-y-2 sm:space-y-3">
-                                        <Label htmlFor="price_amount" className="text-sm sm:text-base font-semibold text-gray-700">Price Amount ($)</Label>
+                                        <Label htmlFor="price_amount" className="text-sm sm:text-base font-semibold text-gray-700">Price Amount ($) *</Label>
                                         <Input
                                             id="price_amount"
                                             type="number"
@@ -104,6 +105,7 @@ export default function CreateStudentPage() {
                                             value={data.price_amount}
                                             onChange={(e) => setData('price_amount', e.target.value)}
                                             placeholder="Enter price amount (e.g., 5.00)"
+                                            required
                                             className={`h-10 sm:h-12 text-sm sm:text-base ${errors.price_amount ? 'border-red-500' : 'border-gray-300'}`}
                                         />
                                         {errors.price_amount && (
@@ -112,8 +114,8 @@ export default function CreateStudentPage() {
                                     </div>
 
                                     <div className="space-y-2 sm:space-y-3">
-                                        <Label htmlFor="duration_minutes" className="text-sm sm:text-base font-semibold text-gray-700">Duration (minutes)</Label>
-                                        <Select value={data.duration_minutes} onValueChange={(value) => setData('duration_minutes', value)}>
+                                        <Label htmlFor="duration_minutes" className="text-sm sm:text-base font-semibold text-gray-700">Duration (minutes) *</Label>
+                                        <Select value={data.duration_minutes} onValueChange={(value) => setData('duration_minutes', value)} required>
                                             <SelectTrigger className={`h-10 sm:h-12 text-sm sm:text-base ${errors.duration_minutes ? 'border-red-500' : 'border-gray-300'}`}>
                                                 <SelectValue placeholder="Select duration" />
                                             </SelectTrigger>

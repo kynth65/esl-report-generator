@@ -14,6 +14,7 @@ import {
     ChevronRight,
     Clock,
     DollarSign,
+    Edit,
     Filter,
     Plus,
     Trash2,
@@ -339,91 +340,115 @@ export default function CalendarPage({
                         </div>
                     </div>
 
-                    {/* Filters */}
-                    <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
-                        <CardHeader className="rounded-t-lg bg-gradient-to-r to-white">
-                            <CardTitle className="flex items-center gap-2">
-                                <Filter className="h-5 w-5 text-[#2563eb]" />
-                                Filter Classes
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="px-4 py-4 sm:px-6 sm:py-6 md:px-8">
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-                                <div className="space-y-2 sm:space-y-3">
-                                    <label className="text-sm font-semibold text-gray-700 sm:text-base">Student</label>
-                                    <Select value={data.student_id} onValueChange={(value) => setData('student_id', value)}>
-                                        <SelectTrigger className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base">
-                                            <SelectValue placeholder="All students" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All students</SelectItem>
-                                            {students.map((student) => (
-                                                <SelectItem key={student.id} value={student.id.toString()}>
-                                                    {student.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                    {/* Filters and Completed Classes */}
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+                        {/* Filters - 3/4 width */}
+                        <div className="lg:col-span-3">
+                            <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
+                                <CardHeader className="rounded-t-lg bg-gradient-to-r to-white">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Filter className="h-5 w-5 text-[#2563eb]" />
+                                        Filter Classes
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="px-4 py-4 sm:px-6 sm:py-6 md:px-8">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+                                        <div className="space-y-2 sm:space-y-3">
+                                            <label className="text-sm font-semibold text-gray-700 sm:text-base">Student</label>
+                                            <Select value={data.student_id} onValueChange={(value) => setData('student_id', value)}>
+                                                <SelectTrigger className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base">
+                                                    <SelectValue placeholder="All students" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All students</SelectItem>
+                                                    {students.map((student) => (
+                                                        <SelectItem key={student.id} value={student.id.toString()}>
+                                                            {student.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                <div className="space-y-2 sm:space-y-3">
-                                    <label className="text-sm font-semibold text-gray-700 sm:text-base">Status</label>
-                                    <Select value={data.status} onValueChange={(value) => setData('status', value)}>
-                                        <SelectTrigger className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base">
-                                            <SelectValue placeholder="All statuses" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All statuses</SelectItem>
-                                            <SelectItem value="upcoming">Upcoming</SelectItem>
-                                            <SelectItem value="completed">Completed</SelectItem>
-                                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                        <div className="space-y-2 sm:space-y-3">
+                                            <label className="text-sm font-semibold text-gray-700 sm:text-base">Status</label>
+                                            <Select value={data.status} onValueChange={(value) => setData('status', value)}>
+                                                <SelectTrigger className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base">
+                                                    <SelectValue placeholder="All statuses" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">All statuses</SelectItem>
+                                                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                                                    <SelectItem value="completed">Completed</SelectItem>
+                                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                <div className="space-y-2 sm:space-y-3">
-                                    <label className="text-sm font-semibold text-gray-700 sm:text-base">From Date</label>
-                                    <Input
-                                        type="date"
-                                        value={data.date_from}
-                                        onChange={(e) => setData('date_from', e.target.value)}
-                                        className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base"
-                                    />
-                                </div>
+                                        <div className="space-y-2 sm:space-y-3">
+                                            <label className="text-sm font-semibold text-gray-700 sm:text-base">From Date</label>
+                                            <Input
+                                                type="date"
+                                                value={data.date_from}
+                                                onChange={(e) => setData('date_from', e.target.value)}
+                                                className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base"
+                                            />
+                                        </div>
 
-                                <div className="space-y-2 sm:space-y-3">
-                                    <label className="text-sm font-semibold text-gray-700 sm:text-base">To Date</label>
-                                    <Input
-                                        type="date"
-                                        value={data.date_to}
-                                        onChange={(e) => setData('date_to', e.target.value)}
-                                        className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="space-y-2 sm:space-y-3">
+                                            <label className="text-sm font-semibold text-gray-700 sm:text-base">To Date</label>
+                                            <Input
+                                                type="date"
+                                                value={data.date_to}
+                                                onChange={(e) => setData('date_to', e.target.value)}
+                                                className="h-10 border-gray-300 text-sm sm:h-12 sm:text-base"
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div className="mt-4 flex gap-2 border-t border-gray-100 pt-3 sm:mt-6 sm:gap-3 sm:pt-4">
-                                <Button
-                                    onClick={handleFilter}
-                                    disabled={processing}
-                                    size="sm"
-                                    className="flex-1 bg-[#2563eb] text-xs text-white shadow-lg transition-all duration-200 hover:bg-[#1d4ed8] hover:shadow-xl sm:flex-none sm:text-sm"
-                                >
-                                    <Filter className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">Apply Filters</span>
-                                    <span className="sm:hidden">Apply</span>
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={clearFilters}
-                                    size="sm"
-                                    className="flex-1 border-gray-300 text-xs transition-colors hover:bg-gray-50 hover:text-gray-900 sm:flex-none sm:text-sm"
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                    <div className="mt-4 flex gap-2 border-t border-gray-100 pt-3 sm:mt-6 sm:gap-3 sm:pt-4">
+                                        <Button
+                                            onClick={handleFilter}
+                                            disabled={processing}
+                                            size="sm"
+                                            className="flex-1 bg-[#2563eb] text-xs text-white shadow-lg transition-all duration-200 hover:bg-[#1d4ed8] hover:shadow-xl sm:flex-none sm:text-sm"
+                                        >
+                                            <Filter className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline">Apply Filters</span>
+                                            <span className="sm:hidden">Apply</span>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            onClick={clearFilters}
+                                            size="sm"
+                                            className="flex-1 border-gray-300 text-xs transition-colors hover:bg-gray-50 hover:text-gray-900 sm:flex-none sm:text-sm"
+                                        >
+                                            Clear
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Minimal Completed Classes - 1/4 width */}
+                        <div className="lg:col-span-1">
+                            <Card className="h-full border-0 bg-gradient-to-br from-green-50 to-green-100 shadow-lg">
+                                <CardContent className="flex h-full flex-col justify-center p-4 text-center">
+                                    <div className="flex items-center justify-center gap-2 mb-3">
+                                        <CheckCircle className="h-5 w-5 text-green-600" />
+                                        <span className="text-sm font-medium text-green-800">This Month</span>
+                                    </div>
+                                    <div className="text-3xl font-bold text-green-600 mb-1">{currentMonthCompleted}</div>
+                                    <div className="text-sm text-green-700">
+                                        {currentMonthCompleted === 1 ? 'Class' : 'Classes'} Completed
+                                    </div>
+                                    <div className="text-xs text-green-600 mt-1">
+                                        {currentMonthDisplayName}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
 
                     {/* Today's Classes */}
                     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
@@ -433,80 +458,177 @@ export default function CalendarPage({
                                 Today's Classes
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="p-3 sm:p-4 md:p-6">
+                        <CardContent className="p-0">
                             {todaysClasses.length > 0 ? (
-                                <div className="space-y-3 sm:space-y-4">
-                                    {todaysClasses.map((classItem) => (
-                                        <div
-                                            key={classItem.id}
-                                            className="flex flex-col gap-3 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 transition-all duration-200 hover:shadow-md sm:p-4"
-                                        >
-                                            <div className="flex min-w-0 items-start gap-3 sm:items-center">
-                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
-                                                    <User className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-semibold text-gray-900 sm:text-base">
-                                                        {classItem.student.name}
-                                                    </p>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
-                                                        <Clock className="h-3 w-3 flex-shrink-0" />
-                                                        <span>
-                                                            {formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}
-                                                        </span>
+                                <div className="overflow-x-auto">
+                                    {/* Desktop Table View - Hidden on small screens */}
+                                    <div className="hidden md:block">
+                                        <table className="w-full">
+                                            <thead className="sticky top-0 z-10">
+                                                <tr className="border-b border-gray-200 bg-gray-50">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                        Student
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                        Time & Duration
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                        Cost
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                        Status
+                                                    </th>
+                                                    <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200 bg-white">
+                                                {todaysClasses.map((classItem) => (
+                                                    <tr key={classItem.id} className="transition-colors hover:bg-gray-50">
+                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                            <div className="flex items-center">
+                                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                                                    <User className="h-4 w-4 text-blue-600" />
+                                                                </div>
+                                                                <div className="ml-3">
+                                                                    <div className="text-sm font-medium text-gray-900">
+                                                                        {classItem.student.name}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <Clock className="h-4 w-4" />
+                                                                <span>{formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                            {calculateClassCost(classItem) > 0 && (
+                                                                <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                                    <span className="text-sm font-semibold text-green-700">
+                                                                        ${calculateClassCost(classItem).toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                            <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>
+                                                                {classItem.status}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                                                            <div className="flex items-center justify-end gap-1">
+                                                                {classItem.status === 'upcoming' && (
+                                                                    <>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="sm"
+                                                                            onClick={() => updateClassStatus(classItem, 'completed')}
+                                                                            className="h-8 w-8 p-0 text-green-600 transition-colors hover:bg-green-50 hover:text-green-700"
+                                                                        >
+                                                                            <Check className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="sm"
+                                                                            onClick={() => updateClassStatus(classItem, 'cancelled')}
+                                                                            className="h-8 w-8 p-0 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                                                                        >
+                                                                            <X className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </>
+                                                                )}
+                                                                <Link href={`/schedules/${classItem.id}/edit`}>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 w-8 p-0 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                                                    >
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Mobile Card View - Shown on small screens */}
+                                    <div className="space-y-3 p-3 md:hidden">
+                                        {todaysClasses.map((classItem) => (
+                                            <div
+                                                key={classItem.id}
+                                                className="rounded-lg border border-gray-200 bg-white p-3 transition-all duration-200 hover:border-gray-300 hover:shadow-md"
+                                            >
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                                                <User className="h-4 w-4 text-blue-600" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-medium text-gray-900">{classItem.student.name}</div>
+                                                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                    <Clock className="h-3 w-3" />
+                                                                    <span>{formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>
+                                                            {classItem.status}
+                                                        </Badge>
                                                     </div>
-                                                </div>
-                                                <div className="flex flex-wrap items-center gap-2">
+                                                    
                                                     {calculateClassCost(classItem) > 0 && (
-                                                        <div className="rounded-full bg-green-50 px-2 py-1 sm:px-3">
-                                                            <span className="text-xs font-semibold text-green-700 sm:text-sm">
+                                                        <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                            <span className="text-sm font-semibold text-green-700">
                                                                 ${calculateClassCost(classItem).toFixed(2)}
                                                             </span>
                                                         </div>
                                                     )}
-                                                    <Badge
-                                                        className={`${getStatusBadge(classItem.status)} flex-shrink-0 border-0 px-2 py-1 text-xs font-medium sm:px-3`}
-                                                    >
-                                                        {classItem.status}
-                                                    </Badge>
+
+                                                    <div className="flex gap-2">
+                                                        {classItem.status === 'upcoming' && (
+                                                            <>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateClassStatus(classItem, 'completed')}
+                                                                    className="flex-1 border-green-200 text-green-600 hover:bg-green-50"
+                                                                >
+                                                                    <Check className="mr-1 h-3 w-3" />
+                                                                    Done
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => updateClassStatus(classItem, 'cancelled')}
+                                                                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                                                                >
+                                                                    <X className="mr-1 h-3 w-3" />
+                                                                    Cancel
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                        <Link href={`/schedules/${classItem.id}/edit`} className="flex-1">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                            >
+                                                                <Edit className="mr-1 h-3 w-3" />
+                                                                Edit
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {classItem.status === 'upcoming' && (
-                                                    <>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => updateClassStatus(classItem, 'completed')}
-                                                            className="flex-1 border-green-200 text-xs text-green-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:flex-none sm:text-sm"
-                                                        >
-                                                            <Check className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                                                            <span className="hidden sm:inline">Complete</span>
-                                                            <span className="sm:hidden">Done</span>
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => updateClassStatus(classItem, 'cancelled')}
-                                                            className="flex-1 border-red-200 text-xs text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700 sm:flex-none sm:text-sm"
-                                                        >
-                                                            <X className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                                                            Cancel
-                                                        </Button>
-                                                    </>
-                                                )}
-                                                <Link href={`/schedules/${classItem.id}/edit`} className="flex-1 sm:flex-none">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="flex-1 border-green-200 text-xs text-green-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:flex-none sm:text-sm"
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="py-12 text-center">
@@ -526,45 +648,6 @@ export default function CalendarPage({
                         </CardContent>
                     </Card>
 
-                    {/* Total Completed Classes */}
-                    <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
-                        <CardHeader className="rounded-t-lg bg-gradient-to-r to-white">
-                            <CardTitle className="flex items-center gap-2">
-                                <CheckCircle className="h-5 w-5 text-green-600" />
-                                Completed Classes - {currentMonthDisplayName}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-3 sm:p-4 md:p-6">
-                            <div className="space-y-3 text-center sm:space-y-4">
-                                <div>
-                                    <div className="mb-2 text-3xl font-bold text-green-600 sm:text-4xl md:text-5xl">{currentMonthCompleted}</div>
-                                    <p className="text-sm font-medium text-gray-600 sm:text-base">
-                                        {currentMonthCompleted === 1 ? 'Class' : 'Classes'} Completed
-                                    </p>
-                                    <p className="text-xs text-gray-500 sm:text-sm">
-                                        in {currentMonthDisplayName}
-                                        {filters.student_id && filters.student_id !== 'all' && ' (filtered by student)'}
-                                    </p>
-                                </div>
-
-                                <div className="space-y-2 border-t border-gray-100 pt-3 sm:space-y-3 sm:pt-4">
-                                    <div className="text-xs text-gray-600 sm:text-sm">
-                                        {currentMonthCompleted > 0 ? 'Great progress this month!' : 'Ready to start teaching?'}
-                                    </div>
-                                    <Link href="/schedules/create">
-                                        <Button
-                                            size="sm"
-                                            className="bg-[#2563eb] text-xs text-white shadow-lg transition-all duration-200 hover:bg-[#1d4ed8] hover:shadow-xl sm:text-sm"
-                                        >
-                                            <Plus className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                            <span className="hidden sm:inline">Schedule More</span>
-                                            <span className="sm:hidden">Schedule</span>
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
 
                     {/* Calendar/List View */}
                     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
