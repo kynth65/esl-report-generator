@@ -143,7 +143,7 @@ export default function Welcome() {
                     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
                             <div className="text-2xl font-bold text-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                ESL Report Generator
+                                Summaflow
                             </div>
                             <div className="hidden items-center gap-8 md:flex">
                                 <a href="#features" className="text-muted-foreground transition-colors hover:text-foreground">
@@ -272,7 +272,7 @@ export default function Welcome() {
                             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                                 {/* Daily Reports */}
                                 <AnimatedElement delay={600}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
                                             <svg
                                                 className="h-6 w-6 text-primary-foreground"
@@ -289,7 +289,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">AI-Powered Report Generation</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Generate Daily, Monthly, and Comparison reports using OpenAI integration. Upload PDFs and get
                                             comprehensive analysis with homework exercises and progress tracking.
                                         </p>
@@ -298,7 +298,7 @@ export default function Welcome() {
 
                                 {/* Monthly Analysis */}
                                 <AnimatedElement delay={800}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2">
                                             <svg
                                                 className="h-6 w-6 text-primary-foreground"
@@ -315,7 +315,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">Student Management System</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Complete student database with pricing per hour, payment tracking, contact information, and detailed
                                             profiles for effective management.
                                         </p>
@@ -324,7 +324,7 @@ export default function Welcome() {
 
                                 {/* Real-Time Processing */}
                                 <AnimatedElement delay={1000}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-4">
                                             <svg
                                                 className="h-6 w-6 text-primary-foreground"
@@ -341,7 +341,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">Class Schedule Management</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Schedule classes with automatic payment calculations, duration tracking, and calendar integration for
                                             seamless lesson planning.
                                         </p>
@@ -350,7 +350,7 @@ export default function Welcome() {
 
                                 {/* Smart Analysis */}
                                 <AnimatedElement delay={1200}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
                                             <svg
                                                 className="h-6 w-6 text-accent-foreground"
@@ -367,7 +367,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">Dashboard & Analytics</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Visual dashboard with payment tracking, student metrics, and comprehensive overview of your ESL teaching
                                             business.
                                         </p>
@@ -376,7 +376,7 @@ export default function Welcome() {
 
                                 {/* Secure Storage */}
                                 <AnimatedElement delay={800}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-5">
                                             <svg
                                                 className="h-6 w-6 text-primary-foreground"
@@ -393,7 +393,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">PDF Processing & Generation</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Upload and analyze PDF documents, extract lesson content, and generate professional PDF reports with
                                             proper formatting and styling.
                                         </p>
@@ -402,7 +402,7 @@ export default function Welcome() {
 
                                 {/* Easy Integration */}
                                 <AnimatedElement delay={1000}>
-                                    <div className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
+                                    <div className="group flex h-80 flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-lg">
                                         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3">
                                             <svg
                                                 className="h-6 w-6 text-primary-foreground"
@@ -419,7 +419,7 @@ export default function Welcome() {
                                             </svg>
                                         </div>
                                         <h3 className="mb-4 text-xl font-semibold">Built with Modern Tech</h3>
-                                        <p className="leading-relaxed text-muted-foreground">
+                                        <p className="flex-1 leading-relaxed text-muted-foreground">
                                             Laravel + React architecture with TypeScript, Tailwind CSS, and SQLite database for reliable and scalable
                                             performance.
                                         </p>
@@ -533,8 +533,8 @@ export default function Welcome() {
                             {/* Testimonials Grid */}
                             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                                 <AnimatedElement delay={400}>
-                                    <div className="rounded-2xl border border-border bg-card p-8">
-                                        <p className="mb-6 text-lg leading-relaxed">
+                                    <div className="flex h-64 flex-col rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 flex-1 text-lg leading-relaxed">
                                             "ESL Report Generator transformed my teaching workflow! The AI-powered reports save hours of work, and
                                             student management is incredibly efficient. Highly recommend!"
                                         </p>
@@ -549,8 +549,8 @@ export default function Welcome() {
                                 </AnimatedElement>
 
                                 <AnimatedElement delay={600}>
-                                    <div className="rounded-2xl border border-border bg-card p-8">
-                                        <p className="mb-6 text-lg leading-relaxed">
+                                    <div className="flex h-64 flex-col rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 flex-1 text-lg leading-relaxed">
                                             "The class scheduling and payment tracking features are game-changers. Managing my ESL students has never
                                             been this organized and professional."
                                         </p>
@@ -565,8 +565,8 @@ export default function Welcome() {
                                 </AnimatedElement>
 
                                 <AnimatedElement delay={800}>
-                                    <div className="rounded-2xl border border-border bg-card p-8">
-                                        <p className="mb-6 text-lg leading-relaxed">
+                                    <div className="flex h-64 flex-col rounded-2xl border border-border bg-card p-8">
+                                        <p className="mb-6 flex-1 text-lg leading-relaxed">
                                             "The PDF analysis and report generation is amazing! Upload lesson materials and get comprehensive reports
                                             with homework exercises. Perfect for ESL educators."
                                         </p>
@@ -620,7 +620,7 @@ export default function Welcome() {
                             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                                 {/* Basic Plan */}
                                 <AnimatedElement delay={800}>
-                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                    <div className="flex h-[500px] flex-col rounded-2xl border border-border bg-card p-8">
                                         <h3 className="mb-2 text-2xl font-bold">Individual Educator</h3>
                                         <p className="mb-6 text-muted-foreground">Perfect for individual ESL teachers starting out.</p>
                                         <div className="mb-8">
@@ -630,7 +630,7 @@ export default function Welcome() {
                                         <button className="mb-8 w-full rounded-full border border-border bg-background py-3 font-medium transition-colors hover:bg-muted">
                                             Get Started for Free
                                         </button>
-                                        <ul className="space-y-3 text-sm">
+                                        <ul className="flex-1 space-y-3 text-sm">
                                             <li className="flex items-center gap-3">
                                                 <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                                                     <path
@@ -667,7 +667,7 @@ export default function Welcome() {
 
                                 {/* Pro Plan */}
                                 <AnimatedElement delay={1000}>
-                                    <div className="relative rounded-2xl border-2 border-primary bg-card p-8">
+                                    <div className="relative flex h-[500px] flex-col rounded-2xl border-2 border-primary bg-card p-8">
                                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-medium text-primary-foreground">
                                             Most Popular
                                         </div>
@@ -680,7 +680,7 @@ export default function Welcome() {
                                         <button className="mb-8 w-full rounded-full bg-primary py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90">
                                             Get Started
                                         </button>
-                                        <ul className="space-y-3 text-sm">
+                                        <ul className="flex-1 space-y-3 text-sm">
                                             <li className="flex items-center gap-3">
                                                 <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                                                     <path
@@ -727,7 +727,7 @@ export default function Welcome() {
 
                                 {/* Enterprise Plan */}
                                 <AnimatedElement delay={1200}>
-                                    <div className="rounded-2xl border border-border bg-card p-8">
+                                    <div className="flex h-[500px] flex-col rounded-2xl border border-border bg-card p-8">
                                         <h3 className="mb-2 text-2xl font-bold">Language School</h3>
                                         <p className="mb-6 text-muted-foreground">For ESL institutions and language schools.</p>
                                         <div className="mb-8">
@@ -737,7 +737,7 @@ export default function Welcome() {
                                         <button className="mb-8 w-full rounded-full border border-border bg-background py-3 font-medium transition-colors hover:bg-muted">
                                             Get Started
                                         </button>
-                                        <ul className="space-y-3 text-sm">
+                                        <ul className="flex-1 space-y-3 text-sm">
                                             <li className="flex items-center gap-3">
                                                 <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                                                     <path
