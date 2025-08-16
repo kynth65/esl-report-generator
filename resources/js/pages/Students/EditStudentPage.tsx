@@ -1,11 +1,11 @@
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Link, useForm, Head } from '@inertiajs/react';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 
 interface Student {
@@ -27,7 +27,7 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
         gender: student.gender,
         notes: student.notes || '',
         price_amount: student.price_amount?.toString() || '',
-        duration_minutes: student.duration_minutes?.toString() || ''
+        duration_minutes: student.duration_minutes?.toString() || '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -36,67 +36,72 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
     };
 
     return (
-        <AppLayout breadcrumbs={[
-            { title: 'Students', href: '/students' },
-            { title: student.name, href: `/students/${student.id}` },
-            { title: 'Edit', href: `/students/${student.id}/edit` }
-        ]}>
-            <Head title={`Edit ${student.name} - SUMMAFLOW`} />
-            <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-white to-[#f8fafc] p-3 sm:p-4 md:p-6 lg:p-8">
-                {/* Header Section */}
-                <div className="text-center mb-6 sm:mb-8 space-y-3 sm:space-y-4">
-                    <div className="space-y-2">
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#2563eb] to-[#60a5fa] bg-clip-text text-transparent tracking-tight px-2">
-                            SUMMAFLOW
-                        </h1>
-                        <p className="text-sm sm:text-base md:text-lg text-[#2563eb] font-medium max-w-3xl mx-auto px-4">
-                            Edit Student
-                        </p>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
-                        Update {student.name}'s profile information and class preferences.
-                    </p>
-                </div>
-
-                <div className="max-w-6xl mx-auto space-y-6">
-                    {/* Back Button */}
-                    <div className="flex justify-center">
-                        <Link href={`/students/${student.id}`}>
-                            <Button variant="ghost" size="sm" className="mb-4 hover:bg-gray-100 transition-colors">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Student
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Students', href: '/students' },
+                { title: student.name, href: `/students/${student.id}` },
+                { title: 'Edit', href: `/students/${student.id}/edit` },
+            ]}
+        >
+            <Head title={`Edit ${student.name}`} />
+            <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-white to-[#f8fafc] p-2 sm:p-4 md:p-6 lg:p-8">
+                <div className="mx-auto max-w-6xl space-y-6">
+                    {/* Page Header with Back Button */}
+                    <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+                        <div className="text-center sm:text-left">
+                            <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl md:text-3xl">Edit Student</h2>
+                            <p className="mt-1 hidden text-sm text-gray-600 sm:mt-2 sm:block sm:text-base md:text-lg">
+                                Update {student.name}'s profile information
+                            </p>
+                        </div>
+                        <Link href={`/students/${student.id}`} className="w-full sm:w-auto">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full border-gray-300 text-xs transition-colors hover:bg-gray-50 hover:text-gray-900 sm:w-auto sm:text-sm"
+                            >
+                                <ArrowLeft className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Back to Student</span>
+                                <span className="sm:hidden">Back</span>
                             </Button>
                         </Link>
                     </div>
 
                     {/* Form */}
-                    <Card className="shadow-xl border-0 max-w-4xl mx-auto bg-gradient-to-br from-white to-gray-50">
-                        <CardHeader className="text-center pb-6 bg-gradient-to-r from-[#f8fafc] to-white rounded-t-lg">
-                            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">Student Information</CardTitle>
-                            <p className="text-gray-600 mt-2">Update {student.name}'s profile details</p>
+                    <Card className="mx-auto max-w-4xl border-0 bg-gradient-to-br from-white to-gray-50 shadow-xl">
+                        <CardHeader className="rounded-t-lg bg-gradient-to-r pb-4 text-center sm:pb-6">
+                            <CardTitle className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Student Information</CardTitle>
+                            <p className="mt-1 hidden text-sm text-gray-600 sm:mt-2 sm:block sm:text-base">
+                                Update {student.name}'s profile details
+                            </p>
                         </CardHeader>
-                        <CardContent className="px-8 sm:px-12 py-8">
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                <div className="grid gap-8 lg:grid-cols-2">
-                                    <div className="space-y-3">
-                                        <Label htmlFor="name" className="text-base font-semibold text-gray-700">Student Name *</Label>
+                        <CardContent className="px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8 lg:px-12">
+                            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                                <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 md:gap-8">
+                                    <div className="space-y-2 sm:space-y-3">
+                                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700 sm:text-base">
+                                            Student Name *
+                                        </Label>
                                         <Input
                                             id="name"
                                             type="text"
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
                                             placeholder="Enter student's full name"
-                                            className={`h-12 text-base ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                                            className={`h-10 text-sm sm:h-12 sm:text-base ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                                         />
-                                        {errors.name && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.name}</p>
-                                        )}
+                                        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <Label htmlFor="gender" className="text-base font-semibold text-gray-700">Gender *</Label>
-                                        <Select value={data.gender} onValueChange={(value) => setData('gender', value as 'male' | 'female' | 'other')}>
-                                            <SelectTrigger className={`h-12 ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}>
+                                    <div className="space-y-2 sm:space-y-3">
+                                        <Label htmlFor="gender" className="text-sm font-semibold text-gray-700 sm:text-base">
+                                            Gender *
+                                        </Label>
+                                        <Select
+                                            value={data.gender}
+                                            onValueChange={(value) => setData('gender', value as 'male' | 'female' | 'other')}
+                                        >
+                                            <SelectTrigger className={`h-10 text-sm sm:h-12 sm:text-base ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}>
                                                 <SelectValue placeholder="Select gender" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -105,13 +110,13 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
                                                 <SelectItem value="other">Other</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.gender && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.gender}</p>
-                                        )}
+                                        {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender}</p>}
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <Label htmlFor="price_amount" className="text-base font-semibold text-gray-700">Price Amount ($)</Label>
+                                    <div className="space-y-2 sm:space-y-3">
+                                        <Label htmlFor="price_amount" className="text-sm font-semibold text-gray-700 sm:text-base">
+                                            Price Amount ($)
+                                        </Label>
                                         <Input
                                             id="price_amount"
                                             type="number"
@@ -120,17 +125,17 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
                                             value={data.price_amount}
                                             onChange={(e) => setData('price_amount', e.target.value)}
                                             placeholder="Enter price amount (e.g., 5.00)"
-                                            className={`h-12 text-base ${errors.price_amount ? 'border-red-500' : 'border-gray-300'}`}
+                                            className={`h-10 text-sm sm:h-12 sm:text-base ${errors.price_amount ? 'border-red-500' : 'border-gray-300'}`}
                                         />
-                                        {errors.price_amount && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.price_amount}</p>
-                                        )}
+                                        {errors.price_amount && <p className="mt-1 text-sm text-red-600">{errors.price_amount}</p>}
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <Label htmlFor="duration_minutes" className="text-base font-semibold text-gray-700">Duration (minutes)</Label>
+                                    <div className="space-y-2 sm:space-y-3">
+                                        <Label htmlFor="duration_minutes" className="text-sm font-semibold text-gray-700 sm:text-base">
+                                            Duration (minutes)
+                                        </Label>
                                         <Select value={data.duration_minutes} onValueChange={(value) => setData('duration_minutes', value)}>
-                                            <SelectTrigger className={`h-12 ${errors.duration_minutes ? 'border-red-500' : 'border-gray-300'}`}>
+                                            <SelectTrigger className={`h-10 text-sm sm:h-12 sm:text-base ${errors.duration_minutes ? 'border-red-500' : 'border-gray-300'}`}>
                                                 <SelectValue placeholder="Select duration" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -138,49 +143,67 @@ export default function EditStudentPage({ student }: EditStudentPageProps) {
                                                 <SelectItem value="50">50 minutes</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.duration_minutes && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.duration_minutes}</p>
-                                        )}
+                                        {errors.duration_minutes && <p className="mt-1 text-sm text-red-600">{errors.duration_minutes}</p>}
                                     </div>
                                 </div>
 
-                                {/* Pricing preview */}
+                                {/* Price Information */}
                                 {data.price_amount && data.duration_minutes && (
-                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <p className="text-sm text-blue-800">
-                                            <strong>Rate:</strong> ${(parseFloat(data.price_amount) / parseFloat(data.duration_minutes)).toFixed(4)} per minute
-                                            {' • '}
+                                    <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 sm:p-4">
+                                        <h3 className="mb-2 text-sm font-semibold text-blue-800 sm:mb-3 sm:text-base">Pricing Preview</h3>
+                                        <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+                                            <span className="text-sm font-medium text-blue-700 sm:text-base">
+                                                Rate per minute: ${(parseFloat(data.price_amount) / parseFloat(data.duration_minutes)).toFixed(4)}
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 text-xs text-blue-700 sm:text-sm">
                                             <strong>Example:</strong> A 50-minute class would cost ${((parseFloat(data.price_amount) / parseFloat(data.duration_minutes)) * 50).toFixed(2)}
-                                        </p>
+                                        </div>
                                     </div>
                                 )}
 
-                                <div className="space-y-3">
-                                    <Label htmlFor="notes" className="text-base font-semibold text-gray-700">Notes</Label>
+                                <div className="space-y-2 sm:space-y-3">
+                                    <Label htmlFor="notes" className="text-sm font-semibold text-gray-700 sm:text-base">
+                                        Notes
+                                    </Label>
                                     <Textarea
                                         id="notes"
                                         value={data.notes}
                                         onChange={(e) => setData('notes', e.target.value)}
                                         placeholder="Additional notes about the student (optional)"
-                                        rows={6}
-                                        className={`resize-none text-base ${errors.notes ? 'border-red-500' : 'border-gray-300'}`}
+                                        rows={4}
+                                        className={`resize-none text-sm sm:text-base ${errors.notes ? 'border-red-500' : 'border-gray-300'}`}
                                     />
-                                    {errors.notes && (
-                                        <p className="text-sm text-red-600 mt-1">{errors.notes}</p>
-                                    )}
+                                    {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes}</p>}
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row gap-4 pt-8">
+                                <div className="flex flex-col gap-3 pt-6 sm:flex-row sm:justify-center sm:gap-4 sm:pt-8">
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="flex-1 h-12 text-base font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                        size="sm"
+                                        className="bg-[#2563eb] text-xs font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#1d4ed8] hover:shadow-xl sm:text-sm md:text-base"
                                     >
-                                        <Save className="h-5 w-5 mr-2" />
-                                        {processing ? 'Updating...' : 'Update Student'}
+                                        <Save className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                                        {processing ? (
+                                            <>
+                                                <span className="hidden sm:inline">Updating...</span>
+                                                <span className="sm:hidden">Saving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="hidden sm:inline">Update Student</span>
+                                                <span className="sm:hidden">Update</span>
+                                            </>
+                                        )}
                                     </Button>
                                     <Link href={`/students/${student.id}`} className="flex-1 sm:flex-none">
-                                        <Button type="button" variant="outline" className="w-full h-12 text-base hover:bg-gray-50 transition-colors">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-gray-300 text-xs transition-colors hover:bg-gray-50 hover:text-gray-900 sm:text-sm md:text-base"
+                                        >
                                             Cancel
                                         </Button>
                                     </Link>
