@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Project Overview
 
-ESL Report Generator is a comprehensive ESL (English as a Second Language) management system that combines report generation with student and class schedule management. It processes PDF documents to generate Daily, Monthly, and Comparison reports using OpenAI integration, while providing full student management capabilities including pricing, payment tracking, and class scheduling.
+SUMMIFLOW (formerly ESL Report Generator) is a comprehensive ESL (English as a Second Language) management system that combines AI-powered report generation with complete student and class schedule management. The platform features the SUMMAFLOW brand identity and processes PDF documents to generate Daily, Monthly, and Comparison reports using OpenAI integration, while providing full student management capabilities including pricing, payment tracking, and class scheduling.
 
 ## Development Commands
 
@@ -31,7 +31,7 @@ ESL Report Generator is a comprehensive ESL (English as a Second Language) manag
 
 ## Architecture Overview
 
-ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-like navigation.
+SUMMAFLOW is built on Laravel + React using Inertia.js for seamless SPA-like navigation with modern UI/UX enhancements.
 
 ### Tech Stack
 - **Backend**: Laravel 12.x (PHP 8.2+)
@@ -76,12 +76,12 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 
 **Component Organization**:
 - `resources/js/components/ui/` - Reusable UI components (Radix-based)
-- `resources/js/components/common/` - Shared report components (FileUploadBox, PreviewSection, etc.)
+- `resources/js/components/common/` - Shared components (FileUploadBox, PreviewSection, ActionCard, AppLogo)
 - `resources/js/components/daily/` - Daily report specific components
 - `resources/js/components/monthly/` - Monthly report specific components
 - `resources/js/components/comparison/` - Comparison report specific components
 - `resources/js/layouts/` - Page layout components with nested structure
-- `resources/js/hooks/` - Custom React hooks
+- `resources/js/hooks/` - Custom React hooks (notifications, scroll animations)
 
 **Route Groups**: `routes/web.php`, `routes/auth.php`, `routes/settings.php`
 
@@ -139,8 +139,12 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 ### UI/UX Components
 - **File Upload**: `resources/js/components/common/FileUploadBox.tsx` - Drag & drop PDF upload
 - **Preview System**: `resources/js/components/common/PreviewSection.tsx` - Shows report preview before download
+- **Action Cards**: `resources/js/components/common/ActionCard.tsx` - Enhanced interactive cards with animations
+- **App Logo**: `resources/js/components/app-logo.tsx` - SUMMAFLOW branded logo component
 - **Sound Notifications**: `resources/js/hooks/useNotificationSound.ts` - Audio feedback for user actions
+- **Scroll Animations**: `resources/js/hooks/useScrollAnimation.ts` - Smooth scroll-based animations for enhanced UX
 - **Theme Support**: Dark/light mode toggle with proper PDF styling
+- **Enhanced Welcome Page**: Modern landing page with animations and improved user engagement
 
 ### Common Issues & Solutions
 - **Date Problems**: Always check PDF date parsing in `PDFGenerationService.php` - dates without years default to 2023
@@ -173,15 +177,18 @@ ESL Report Generator built on Laravel + React using Inertia.js for seamless SPA-
 - **Features**: Class scheduling, duration tracking, automatic payment calculations based on hourly rates
 
 ### Calendar & Dashboard Integration
-- **Calendar**: `resources/js/pages/calendar/index.tsx` - Visual schedule management with payment status
-- **Dashboard**: `resources/js/pages/dashboard.tsx` - Overview with payment tracking and student metrics
+- **Calendar**: `resources/js/pages/calendar/index.tsx` - Enhanced visual schedule management with improved UI and payment status tracking
+- **Dashboard**: `resources/js/pages/dashboard.tsx` - Modern overview with enhanced statistics, payment tracking, and student metrics
+- **Welcome Page**: `resources/js/pages/welcome.tsx` - Comprehensive landing page with scroll animations and modern design
 - **Payment Tracking**: Real-time calculation of payments due based on scheduled class durations and hourly rates
 
 ### Key Implementation Notes
 - **Payment Calculations**: Automatically calculated based on class duration × student hourly rate
-- **Date Handling**: Consistent timezone handling across schedule management
-- **UI Components**: Reusable form components for student and schedule management
+- **Date Handling**: Consistent timezone handling across schedule management with improved today's classes filtering
+- **UI Components**: Enhanced reusable form components with modern design patterns and responsive layouts
 - **Data Relationships**: Proper Eloquent relationships between students and class schedules
+- **User Experience**: Improved table layouts, button interactions, and overall UI consistency across all pages
+- **Modern Branding**: SUMMAFLOW branding consistently applied across the platform
 
 ### Testing & Quality Assurance
 - **PHP Tests**: Use `php artisan test` or `composer test` 

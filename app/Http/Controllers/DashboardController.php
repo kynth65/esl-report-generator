@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString(); // Fix: Convert to string format
         $currentTime = Carbon::now();
         
         // Get current class (happening right now)
