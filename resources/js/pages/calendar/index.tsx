@@ -94,6 +94,9 @@ export default function CalendarPage({
     const [currentMonthCompleted, setCurrentMonthCompleted] = useState(monthlyCompletedClasses);
     const [currentMonthDisplayName, setCurrentMonthDisplayName] = useState(currentMonthName);
     const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+    const [dayModalOpen, setDayModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string>('');
+    const [selectedDateClasses, setSelectedDateClasses] = useState<ClassSchedule[]>([]);
 
     const { data, setData, get, processing } = useForm({
         student_id: filters.student_id || 'all',
@@ -140,7 +143,7 @@ export default function CalendarPage({
             date_to: '',
             search: '',
         });
-        router.get('/calendar');
+        router.get('/calendar', {}, { preserveState: true });
     };
 
     const handleDeleteClick = (classItem: ClassSchedule) => {
@@ -154,6 +157,29 @@ export default function CalendarPage({
                 onSuccess: () => {
                     setDeleteConfirmOpen(false);
                     setClassToDelete(null);
+                    // Update local state instead of reloading the page
+                    // Force re-fetch of calendar data for the current month
+                    const monthKey = currentDate.toISOString().slice(0, 7); // YYYY-MM
+                    const params = new URLSearchParams({
+                        month: monthKey,
+                        ...(data.student_id !== 'all' && { student_id: data.student_id }),
+                        ...(data.status !== 'all' && { status: data.status }),
+                        ...(data.date_from && { date_from: data.date_from }),
+                        ...(data.date_to && { date_to: data.date_to }),
+                    });
+
+                    fetch(`/calendar/data?${params.toString()}`)
+                        .then((res) => res.json())
+                        .then((response) => {
+                            setCalendarData(response.classes || response);
+                            if (response.completedCount !== undefined) {
+                                setCurrentMonthCompleted(response.completedCount);
+                            }
+                            if (response.monthName) {
+                                setCurrentMonthDisplayName(response.monthName);
+                            }
+                        })
+                        .catch(console.error);
                 },
             });
         }
@@ -162,6 +188,19 @@ export default function CalendarPage({
     const cancelDelete = () => {
         setDeleteConfirmOpen(false);
         setClassToDelete(null);
+    };
+
+    const handleDayClick = (date: Date, dayClasses: ClassSchedule[]) => {
+        const dateKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+        setSelectedDate(formatDate(dateKey));
+        setSelectedDateClasses(dayClasses);
+        setDayModalOpen(true);
+    };
+
+    const closeDayModal = () => {
+        setDayModalOpen(false);
+        setSelectedDate('');
+        setSelectedDateClasses([]);
     };
 
     const updateClassStatus = (classItem: ClassSchedule, status: 'completed' | 'cancelled') => {
@@ -180,8 +219,29 @@ export default function CalendarPage({
             },
             {
                 onSuccess: () => {
-                    // Refresh the entire page to get updated data
-                    router.reload({ only: ['todaysClasses', 'monthlyCompletedClasses', 'currentMonthName'] });
+                    // Update local state instead of reloading the page
+                    // Force re-fetch of calendar data for the current month
+                    const monthKey = currentDate.toISOString().slice(0, 7); // YYYY-MM
+                    const params = new URLSearchParams({
+                        month: monthKey,
+                        ...(data.student_id !== 'all' && { student_id: data.student_id }),
+                        ...(data.status !== 'all' && { status: data.status }),
+                        ...(data.date_from && { date_from: data.date_from }),
+                        ...(data.date_to && { date_to: data.date_to }),
+                    });
+
+                    fetch(`/calendar/data?${params.toString()}`)
+                        .then((res) => res.json())
+                        .then((response) => {
+                            setCalendarData(response.classes || response);
+                            if (response.completedCount !== undefined) {
+                                setCurrentMonthCompleted(response.completedCount);
+                            }
+                            if (response.monthName) {
+                                setCurrentMonthDisplayName(response.monthName);
+                            }
+                        })
+                        .catch(console.error);
                 },
             },
         );
@@ -245,7 +305,8 @@ export default function CalendarPage({
             currentWeek.push(
                 <div
                     key={i}
-                    className={`min-h-[80px] border border-gray-100 p-1 sm:min-h-[100px] sm:p-2 ${
+                    onClick={() => handleDayClick(date, dayClasses)}
+                    className={`min-h-[80px] cursor-pointer border border-gray-100 p-1 transition-colors hover:bg-gray-100 sm:min-h-[100px] sm:p-2 ${
                         isCurrentMonth ? 'bg-white' : 'bg-gray-50'
                     } ${isToday ? 'border-blue-200 bg-blue-50' : ''}`}
                 >
@@ -434,17 +495,13 @@ export default function CalendarPage({
                         <div className="lg:col-span-1">
                             <Card className="h-full border-0 bg-gradient-to-br from-green-50 to-green-100 shadow-lg">
                                 <CardContent className="flex h-full flex-col justify-center p-4 text-center">
-                                    <div className="flex items-center justify-center gap-2 mb-3">
+                                    <div className="mb-3 flex items-center justify-center gap-2">
                                         <CheckCircle className="h-5 w-5 text-green-600" />
                                         <span className="text-sm font-medium text-green-800">This Month</span>
                                     </div>
-                                    <div className="text-3xl font-bold text-green-600 mb-1">{currentMonthCompleted}</div>
-                                    <div className="text-sm text-green-700">
-                                        {currentMonthCompleted === 1 ? 'Class' : 'Classes'} Completed
-                                    </div>
-                                    <div className="text-xs text-green-600 mt-1">
-                                        {currentMonthDisplayName}
-                                    </div>
+                                    <div className="mb-1 text-3xl font-bold text-green-600">{currentMonthCompleted}</div>
+                                    <div className="text-sm text-green-700">{currentMonthCompleted === 1 ? 'Class' : 'Classes'} Completed</div>
+                                    <div className="mt-1 text-xs text-green-600">{currentMonthDisplayName}</div>
                                 </CardContent>
                             </Card>
                         </div>
@@ -466,19 +523,19 @@ export default function CalendarPage({
                                         <table className="w-full">
                                             <thead className="sticky top-0 z-10">
                                                 <tr className="border-b border-gray-200 bg-gray-50">
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase">
                                                         Student
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase">
                                                         Time & Duration
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase">
                                                         Cost
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase">
                                                         Status
                                                     </th>
-                                                    <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-600">
+                                                    <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-600 uppercase">
                                                         Actions
                                                     </th>
                                                 </tr>
@@ -486,25 +543,25 @@ export default function CalendarPage({
                                             <tbody className="divide-y divide-gray-200 bg-white">
                                                 {todaysClasses.map((classItem) => (
                                                     <tr key={classItem.id} className="transition-colors hover:bg-gray-50">
-                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                        <td className="px-4 py-3 whitespace-nowrap">
                                                             <div className="flex items-center">
                                                                 <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
                                                                     <User className="h-4 w-4 text-blue-600" />
                                                                 </div>
                                                                 <div className="ml-3">
-                                                                    <div className="text-sm font-medium text-gray-900">
-                                                                        {classItem.student.name}
-                                                                    </div>
+                                                                    <div className="text-sm font-medium text-gray-900">{classItem.student.name}</div>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                        <td className="px-4 py-3 whitespace-nowrap">
                                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                                 <Clock className="h-4 w-4" />
-                                                                <span>{formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}</span>
+                                                                <span>
+                                                                    {formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}
+                                                                </span>
                                                             </div>
                                                         </td>
-                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                        <td className="px-4 py-3 whitespace-nowrap">
                                                             {calculateClassCost(classItem) > 0 && (
                                                                 <div className="rounded-full bg-green-50 px-3 py-1 text-center">
                                                                     <span className="text-sm font-semibold text-green-700">
@@ -513,12 +570,12 @@ export default function CalendarPage({
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="whitespace-nowrap px-4 py-3">
+                                                        <td className="px-4 py-3 whitespace-nowrap">
                                                             <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>
                                                                 {classItem.status}
                                                             </Badge>
                                                         </td>
-                                                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                                                        <td className="px-4 py-3 text-right whitespace-nowrap">
                                                             <div className="flex items-center justify-end gap-1">
                                                                 {classItem.status === 'upcoming' && (
                                                                     <>
@@ -574,15 +631,16 @@ export default function CalendarPage({
                                                                 <div className="font-medium text-gray-900">{classItem.student.name}</div>
                                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                                                     <Clock className="h-3 w-3" />
-                                                                    <span>{formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}</span>
+                                                                    <span>
+                                                                        {formatTime(classItem.start_time)} •{' '}
+                                                                        {getDurationText(classItem.duration_minutes)}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>
-                                                            {classItem.status}
-                                                        </Badge>
+                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>{classItem.status}</Badge>
                                                     </div>
-                                                    
+
                                                     {calculateClassCost(classItem) > 0 && (
                                                         <div className="rounded-full bg-green-50 px-3 py-1 text-center">
                                                             <span className="text-sm font-semibold text-green-700">
@@ -647,7 +705,6 @@ export default function CalendarPage({
                             )}
                         </CardContent>
                     </Card>
-
 
                     {/* Calendar/List View */}
                     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 shadow-lg">
@@ -747,7 +804,7 @@ export default function CalendarPage({
                                 </div>
                             ) : (
                                 /* List View */
-                                <div className="space-y-3 px-3 sm:space-y-4 sm:px-6">
+                                <div className="overflow-x-auto">
                                     {classes.data.length === 0 ? (
                                         <div className="py-12 text-center">
                                             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
@@ -763,90 +820,213 @@ export default function CalendarPage({
                                             </Link>
                                         </div>
                                     ) : (
-                                        [...classes.data]
-                                            .sort((a, b) => {
-                                                // Create proper datetime objects for comparison
-                                                const dateTimeA = new Date(`${a.class_date}T${a.start_time}`);
-                                                const dateTimeB = new Date(`${b.class_date}T${b.start_time}`);
-                                                const now = new Date();
+                                        <>
+                                            {/* Desktop Table View - Hidden on small screens */}
+                                            <div className="hidden md:block max-h-[500px] overflow-y-auto">
+                                                <table className="w-full">
+                                                    <thead className="sticky top-0 z-10">
+                                                        <tr className="border-b border-gray-200 bg-gray-50">
+                                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Date & Time
+                                                            </th>
+                                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Student
+                                                            </th>
+                                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Duration
+                                                            </th>
+                                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Cost
+                                                            </th>
+                                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Status
+                                                            </th>
+                                                            <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                Actions
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-200 bg-white">
+                                                        {[...classes.data]
+                                                            .sort((a, b) => {
+                                                                // Create proper datetime objects for comparison
+                                                                const dateTimeA = new Date(`${a.class_date}T${a.start_time}`);
+                                                                const dateTimeB = new Date(`${b.class_date}T${b.start_time}`);
 
-                                                // Determine if classes are upcoming (including today's future classes)
-                                                const aIsUpcoming = dateTimeA >= now;
-                                                const bIsUpcoming = dateTimeB >= now;
+                                                                // Sort chronologically ascending (earliest dates first)
+                                                                return dateTimeA.getTime() - dateTimeB.getTime();
+                                                            })
+                                                            .map((classItem) => (
+                                                                <tr key={classItem.id} className="transition-colors hover:bg-gray-50">
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="flex flex-col">
+                                                                            <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                                                                <Calendar className="h-4 w-4 text-gray-400" />
+                                                                                {formatDate(classItem.class_date)}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Clock className="h-4 w-4 text-gray-400" />
+                                                                                {formatTime(classItem.start_time)}
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="flex items-center">
+                                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
+                                                                                <User className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
+                                                                            </div>
+                                                                            <div className="ml-3 sm:ml-4">
+                                                                                <div className="text-sm font-medium text-gray-900 sm:text-base">
+                                                                                    {classItem.student.name}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="text-sm text-gray-600">
+                                                                            {getDurationText(classItem.duration_minutes)}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        {calculateClassCost(classItem) > 0 && (
+                                                                            <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                                                <span className="text-sm font-semibold text-green-700">
+                                                                                    ${calculateClassCost(classItem).toFixed(2)}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>
+                                                                            {classItem.status}
+                                                                        </Badge>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 text-right whitespace-nowrap sm:px-6">
+                                                                        <div className="flex items-center justify-end gap-1">
+                                                                            {classItem.status === 'upcoming' && (
+                                                                                <>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        onClick={() => updateClassStatus(classItem, 'completed')}
+                                                                                        className="h-8 w-8 p-0 text-green-600 transition-colors hover:bg-green-50 hover:text-green-700"
+                                                                                    >
+                                                                                        <Check className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        onClick={() => updateClassStatus(classItem, 'cancelled')}
+                                                                                        className="h-8 w-8 p-0 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                                                                                    >
+                                                                                        <X className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </>
+                                                                            )}
+                                                                            <Link href={`/schedules/${classItem.id}/edit`}>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                                                                >
+                                                                                    <Edit className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
 
-                                                // Prioritize upcoming classes over past classes
-                                                if (aIsUpcoming && !bIsUpcoming) return -1;
-                                                if (!aIsUpcoming && bIsUpcoming) return 1;
+                                            {/* Mobile Card View - Shown on small screens */}
+                                            <div className="max-h-[500px] space-y-3 overflow-y-auto p-3 md:hidden">
+                                                {[...classes.data]
+                                                    .sort((a, b) => {
+                                                        // Create proper datetime objects for comparison
+                                                        const dateTimeA = new Date(`${a.class_date}T${a.start_time}`);
+                                                        const dateTimeB = new Date(`${b.class_date}T${b.start_time}`);
 
-                                                // For all classes (both upcoming and past), sort chronologically
-                                                // Upcoming: earliest first (ascending)
-                                                // Past: most recent first (descending)
-                                                if (aIsUpcoming && bIsUpcoming) {
-                                                    return dateTimeA.getTime() - dateTimeB.getTime();
-                                                } else {
-                                                    return dateTimeB.getTime() - dateTimeA.getTime();
-                                                }
-                                            })
-                                            .map((classItem) => (
-                                                <div
-                                                    key={classItem.id}
-                                                    className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-3 transition-all duration-200 hover:border-gray-200 hover:shadow-md sm:p-4"
-                                                >
-                                                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:gap-4">
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            <Calendar className="h-3 w-3 text-gray-600 sm:h-4 sm:w-4" />
-                                                            <span className="text-sm font-medium text-gray-900 sm:text-base">
-                                                                {formatDate(classItem.class_date)}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
-                                                            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                            <span>
-                                                                {formatTime(classItem.start_time)} ({getDurationText(classItem.duration_minutes)})
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <User className="h-3 w-3 text-gray-600 sm:h-4 sm:w-4" />
-                                                            <span className="truncate text-sm font-medium sm:text-base">
-                                                                {classItem.student.name}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            {calculateClassCost(classItem) > 0 && (
-                                                                <div className="rounded-full bg-green-50 px-2 py-1 sm:px-3">
-                                                                    <span className="text-xs font-semibold text-green-700 sm:text-sm">
-                                                                        ${calculateClassCost(classItem).toFixed(2)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                            <Badge
-                                                                className={`${getStatusBadge(classItem.status)} border-0 px-2 py-1 text-xs font-medium sm:px-3`}
-                                                            >
-                                                                {classItem.status}
-                                                            </Badge>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <Link href={`/schedules/${classItem.id}/edit`} className="flex-1 sm:flex-none">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="w-full text-xs transition-colors hover:bg-blue-50 hover:text-blue-700 sm:w-auto sm:text-sm"
-                                                            >
-                                                                Edit
-                                                            </Button>
-                                                        </Link>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => handleDeleteClick(classItem)}
-                                                            className="flex-1 text-xs text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 sm:flex-none sm:text-sm"
+                                                        // Sort chronologically ascending (earliest dates first)
+                                                        return dateTimeA.getTime() - dateTimeB.getTime();
+                                                    })
+                                                    .map((classItem) => (
+                                                        <div
+                                                            key={classItem.id}
+                                                            className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-md"
                                                         >
-                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))
+                                                            <div className="flex flex-col gap-3">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                                                            <User className="h-4 w-4 text-blue-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-medium text-gray-900">{classItem.student.name}</div>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Calendar className="h-3 w-3" />
+                                                                                {formatDate(classItem.class_date)}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Clock className="h-3 w-3" />
+                                                                                <span>
+                                                                                    {formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex flex-col items-end gap-2">
+                                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>{classItem.status}</Badge>
+                                                                        {calculateClassCost(classItem) > 0 && (
+                                                                            <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                                                <span className="text-sm font-semibold text-green-700">
+                                                                                    ${calculateClassCost(classItem).toFixed(2)}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="flex gap-2">
+                                                                    {classItem.status === 'upcoming' && (
+                                                                        <>
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                onClick={() => updateClassStatus(classItem, 'completed')}
+                                                                                className="flex-1 border-green-200 text-green-600 hover:bg-green-50"
+                                                                            >
+                                                                                <Check className="mr-1 h-3 w-3" />
+                                                                                Done
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                onClick={() => updateClassStatus(classItem, 'cancelled')}
+                                                                                className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                                                                            >
+                                                                                <X className="mr-1 h-3 w-3" />
+                                                                                Cancel
+                                                                            </Button>
+                                                                        </>
+                                                                    )}
+                                                                    <Link href={`/schedules/${classItem.id}/edit`} className="flex-1">
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                                        >
+                                                                            <Edit className="mr-1 h-3 w-3" />
+                                                                            Edit
+                                                                        </Button>
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </>
                                     )}
 
                                     {/* Pagination */}
@@ -939,55 +1119,163 @@ export default function CalendarPage({
                                             <h4 className="mb-3 text-base font-semibold text-gray-900 sm:mb-4 sm:text-lg">
                                                 Completed Classes This Week
                                             </h4>
-                                            {currentWeek.classes.map((classItem) => (
-                                                <div
-                                                    key={classItem.id}
-                                                    className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 sm:p-4"
-                                                >
-                                                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:gap-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <User className="h-3 w-3 text-gray-600 sm:h-4 sm:w-4" />
-                                                            <Link
-                                                                href={`/students/${classItem.student_id}`}
-                                                                className="truncate text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline sm:text-base"
-                                                            >
-                                                                {classItem.student_name}
-                                                            </Link>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-gray-600">
-                                                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                            <span className="text-xs font-medium sm:text-sm">{classItem.class_date}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-gray-600">
-                                                            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                            <span className="text-xs sm:text-sm">
-                                                                {classItem.start_time} ({classItem.duration_hours})
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            {classItem.price && classItem.price > 0 && (
-                                                                <div className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600 sm:px-3 sm:text-sm">
-                                                                    ${classItem.price.toFixed(2)}
-                                                                </div>
-                                                            )}
-                                                            <Badge className="border-blue-200 bg-blue-100 text-xs text-blue-800 sm:text-sm">
-                                                                completed
-                                                            </Badge>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <Link href={`/schedules/${classItem.id}/edit`} className="flex-1 sm:flex-none">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="w-full text-xs transition-colors hover:bg-blue-50 hover:text-blue-700 sm:w-auto sm:text-sm"
-                                                            >
-                                                                Edit
-                                                            </Button>
-                                                        </Link>
-                                                    </div>
+                                            <div className="overflow-x-auto">
+                                                {/* Desktop Table View - Hidden on small screens */}
+                                                <div className="hidden md:block max-h-[400px] overflow-y-auto">
+                                                    <table className="w-full">
+                                                        <thead className="sticky top-0 z-10">
+                                                            <tr className="border-b border-gray-200 bg-gray-50">
+                                                                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Student
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Date & Time
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Duration
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Cost
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Status
+                                                                </th>
+                                                                <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-gray-600 uppercase sm:px-6 sm:py-4">
+                                                                    Actions
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-200 bg-white">
+                                                            {currentWeek.classes.map((classItem) => (
+                                                                <tr key={classItem.id} className="transition-colors hover:bg-gray-50">
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="flex items-center">
+                                                                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
+                                                                                <User className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
+                                                                            </div>
+                                                                            <div className="ml-3 sm:ml-4">
+                                                                                <Link
+                                                                                    href={`/students/${classItem.student_id}`}
+                                                                                    className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline sm:text-base"
+                                                                                >
+                                                                                    {classItem.student_name}
+                                                                                </Link>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="flex flex-col">
+                                                                            <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                                                                <Calendar className="h-4 w-4 text-gray-400" />
+                                                                                {classItem.class_date}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Clock className="h-4 w-4 text-gray-400" />
+                                                                                {classItem.start_time}
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <div className="text-sm text-gray-600">
+                                                                            {classItem.duration_hours}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        {classItem.price && classItem.price > 0 && (
+                                                                            <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                                                <span className="text-sm font-semibold text-green-700">
+                                                                                    ${classItem.price.toFixed(2)}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-4 py-4 whitespace-nowrap sm:px-6">
+                                                                        <Badge className="border-blue-200 bg-blue-100 text-xs text-blue-800">
+                                                                            completed
+                                                                        </Badge>
+                                                                    </td>
+                                                                    <td className="px-4 py-4 text-right whitespace-nowrap sm:px-6">
+                                                                        <div className="flex items-center justify-end gap-1">
+                                                                            <Link href={`/schedules/${classItem.id}/edit`}>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                                                                >
+                                                                                    <Edit className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            ))}
+
+                                                {/* Mobile Card View - Shown on small screens */}
+                                                <div className="max-h-[400px] space-y-3 overflow-y-auto md:hidden">
+                                                    {currentWeek.classes.map((classItem) => (
+                                                        <div
+                                                            key={classItem.id}
+                                                            className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-md"
+                                                        >
+                                                            <div className="flex flex-col gap-3">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                                                            <User className="h-4 w-4 text-blue-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <Link
+                                                                                href={`/students/${classItem.student_id}`}
+                                                                                className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                                                                            >
+                                                                                {classItem.student_name}
+                                                                            </Link>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Calendar className="h-3 w-3" />
+                                                                                {classItem.class_date}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                                <Clock className="h-3 w-3" />
+                                                                                <span>
+                                                                                    {classItem.start_time} ({classItem.duration_hours})
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex flex-col items-end gap-2">
+                                                                        <Badge className="border-blue-200 bg-blue-100 text-xs text-blue-800">
+                                                                            completed
+                                                                        </Badge>
+                                                                        {classItem.price && classItem.price > 0 && (
+                                                                            <div className="rounded-full bg-green-50 px-3 py-1 text-center">
+                                                                                <span className="text-sm font-semibold text-green-700">
+                                                                                    ${classItem.price.toFixed(2)}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="flex gap-2">
+                                                                    <Link href={`/schedules/${classItem.id}/edit`} className="flex-1">
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="w-full border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                                        >
+                                                                            <Edit className="mr-1 h-3 w-3" />
+                                                                            Edit
+                                                                        </Button>
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </>
                                 )}
@@ -1020,6 +1308,145 @@ export default function CalendarPage({
                     )}
                 </div>
             </div>
+
+            {/* Day Classes Modal */}
+            {dayModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8" onClick={closeDayModal}>
+                    <div
+                        className="mx-auto w-[95%] max-w-[95vw] sm:w-[85%] md:w-[75%] lg:w-[65%] xl:w-[55%] 2xl:w-[50%] max-h-[95vh] overflow-hidden rounded-xl bg-white shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="border-b border-gray-200 px-4 py-4 sm:px-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">Classes on {selectedDate}</h3>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={closeDayModal}
+                                    className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="max-h-[60vh] overflow-y-auto px-4 py-4 sm:px-6">
+                            {selectedDateClasses.length === 0 ? (
+                                <div className="py-8 text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                                        <CalendarDays className="h-8 w-8 text-gray-400" />
+                                    </div>
+                                    <h4 className="mb-2 text-lg font-semibold text-gray-900">No classes scheduled</h4>
+                                    <p className="mb-6 text-sm text-gray-600">There are no classes scheduled for this date.</p>
+                                    <Link href="/schedules/create">
+                                        <Button
+                                            onClick={closeDayModal}
+                                            className="bg-[#2563eb] text-white shadow-lg transition-all duration-200 hover:bg-[#1d4ed8] hover:shadow-xl"
+                                        >
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Schedule a Class
+                                        </Button>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {selectedDateClasses.map((classItem) => (
+                                        <div
+                                            key={classItem.id}
+                                            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md"
+                                        >
+                                            <div className="flex flex-col gap-3">
+                                                {/* Student and Time Info */}
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                                            <User className="h-5 w-5 text-blue-600" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-semibold text-gray-900">{classItem.student.name}</div>
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <Clock className="h-4 w-4" />
+                                                                <span>
+                                                                    {formatTime(classItem.start_time)} • {getDurationText(classItem.duration_minutes)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {calculateClassCost(classItem) > 0 && (
+                                                            <div className="rounded-full bg-green-50 px-3 py-1">
+                                                                <span className="text-sm font-semibold text-green-700">
+                                                                    ${calculateClassCost(classItem).toFixed(2)}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        <Badge className={`${getStatusBadge(classItem.status)} text-xs`}>{classItem.status}</Badge>
+                                                    </div>
+                                                </div>
+
+                                                {/* Notes */}
+                                                {classItem.notes && (
+                                                    <div className="rounded-md bg-gray-50 p-3">
+                                                        <div className="text-sm text-gray-600">
+                                                            <span className="font-medium text-gray-700">Notes: </span>
+                                                            {classItem.notes}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Actions */}
+                                                <div className="flex gap-2 border-t border-gray-100 pt-3">
+                                                    {classItem.status === 'upcoming' && (
+                                                        <>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    updateClassStatus(classItem, 'completed');
+                                                                    closeDayModal();
+                                                                }}
+                                                                className="flex-1 border-green-200 text-green-600 hover:bg-green-50 hover:text-green-800"
+                                                            >
+                                                                <Check className="mr-1 h-3 w-3" />
+                                                                Complete
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    updateClassStatus(classItem, 'cancelled');
+                                                                    closeDayModal();
+                                                                }}
+                                                                className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-800"
+                                                            >
+                                                                <X className="mr-1 h-3 w-3" />
+                                                                Cancel
+                                                            </Button>
+                                                        </>
+                                                    )}
+                                                    <Link href={`/schedules/${classItem.id}/edit`} className="flex-1">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={closeDayModal}
+                                                            className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
+                                                        >
+                                                            <Edit className="mr-1 h-3 w-3" />
+                                                            Edit
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Delete Confirmation Modal */}
             {deleteConfirmOpen && (
